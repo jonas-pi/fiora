@@ -15,7 +15,10 @@ import {
     sealIp,
     toggleSendMessage,
     toggleNewUserSendMessage,
+    toggleRegister,
+    toggleCreateGroup,
     getSystemConfig,
+    getAllOnlineUsers,
 } from '../../service';
 
 const styles = {
@@ -30,6 +33,8 @@ const styles = {
 type SystemConfig = {
     disableSendMessage: boolean;
     disableNewUserSendMessage: boolean;
+    disableRegister: boolean;
+    disableCreateGroup: boolean;
 };
 
 interface AdminProps {
@@ -47,6 +52,16 @@ function Admin(props: AdminProps) {
     const [sealList, setSealList] = useState({ users: [], ips: [] });
     const [sealIpAddress, setSealIpAddress] = useState('');
     const [systemConfig, setSystemConfig] = useState<SystemConfig>();
+    const [onlineUsers, setOnlineUsers] = useState<
+        Array<{
+            userId: string;
+            username: string;
+            avatar: string;
+            ip: string;
+            os: string;
+            browser: string;
+        }>
+    >([]);
 
     async function handleGetSealList() {
         const sealListRes = await getSealList();
@@ -60,10 +75,22 @@ function Admin(props: AdminProps) {
             setSystemConfig(systemConfigRes);
         }
     }
+    async function handleGetOnlineUsers() {
+        const users = await getAllOnlineUsers();
+        if (users) {
+            setOnlineUsers(users);
+        }
+    }
     useEffect(() => {
         if (visible) {
             handleGetSystemConfig();
             handleGetSealList();
+            handleGetOnlineUsers();
+            // 每 5 秒刷新一次在线用户列表
+            const interval = setInterval(() => {
+                handleGetOnlineUsers();
+            }, 5000);
+            return () => clearInterval(interval);
         }
     }, [visible]);
 
@@ -140,6 +167,44 @@ function Admin(props: AdminProps) {
         }
     }
 
+    /**
+     * 处理切换注册功能
+     */
+    async function handleDisableRegister() {
+        const isSuccess = await toggleRegister(false);
+        if (isSuccess) {
+            Message.success('已禁用注册功能');
+            handleGetSystemConfig();
+        }
+    }
+
+    async function handleEnableRegister() {
+        const isSuccess = await toggleRegister(true);
+        if (isSuccess) {
+            Message.success('已启用注册功能');
+            handleGetSystemConfig();
+        }
+    }
+
+    /**
+     * 处理切换创建群组功能
+     */
+    async function handleDisableCreateGroup() {
+        const isSuccess = await toggleCreateGroup(false);
+        if (isSuccess) {
+            Message.success('已禁用创建群组功能');
+            handleGetSystemConfig();
+        }
+    }
+
+    async function handleEnableCreateGroup() {
+        const isSuccess = await toggleCreateGroup(true);
+        if (isSuccess) {
+            Message.success('已启用创建群组功能');
+            handleGetSystemConfig();
+        }
+    }
+
     return (
         <Dialog
             className={Style.admin}
@@ -181,6 +246,83 @@ function Admin(props: AdminProps) {
                             关闭新用户禁言
                         </Button>
                     )}
+                </div>
+                <div className={Common.block}>
+                    <p className={Common.title}>系统配置</p>
+                    {!systemConfig?.disableRegister ? (
+                        <Button
+                            className={styles.button}
+                            type="danger"
+                            onClick={handleDisableRegister}
+                        >
+                            禁用注册
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.button}
+                            onClick={handleEnableRegister}
+                        >
+                            启用注册
+                        </Button>
+                    )}
+                    {!systemConfig?.disableCreateGroup ? (
+                        <Button
+                            className={styles.button}
+                            type="danger"
+                            onClick={handleDisableCreateGroup}
+                        >
+                            禁用创建群组
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.button}
+                            onClick={handleEnableCreateGroup}
+                        >
+                            启用创建群组
+                        </Button>
+                    )}
+                </div>
+                <div className={Common.block}>
+                    <p className={Common.title}>在线用户 ({onlineUsers.length})</p>
+                    <div className={Style.sealList} style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {onlineUsers.length === 0 ? (
+                            <span style={{ color: '#999' }}>暂无在线用户</span>
+                        ) : (
+                            onlineUsers.map((user) => (
+                                <div
+                                    key={user.userId}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '4px 0',
+                                        borderBottom: '1px solid #eee',
+                                    }}
+                                >
+                                    <img
+                                        src={user.avatar}
+                                        alt={user.username}
+                                        style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            marginRight: '8px',
+                                        }}
+                                    />
+                                    <span style={{ flex: 1 }}>{user.username}</span>
+                                    <span
+                                        style={{
+                                            fontSize: '12px',
+                                            color: '#999',
+                                            marginLeft: '8px',
+                                        }}
+                                        title={`IP: ${user.ip}, OS: ${user.os}, Browser: ${user.browser}`}
+                                    >
+                                        {user.ip}
+                                    </span>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
                 <div className={Common.block}>
                     <p className={Common.title}>更新用户标签</p>

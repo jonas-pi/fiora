@@ -17,7 +17,10 @@ export default function isAdmin(socket: Socket) {
         'getSealIpList',
         'toggleSendMessage',
         'toggleNewUserSendMessage',
+        'toggleRegister',
+        'toggleCreateGroup',
         'getSystemConfig',
+        'getAllOnlineUsers',
     ]);
     return async ([event, , cb]: MiddlewareArgs, next: MiddlewareNext) => {
         socket.data.isAdmin =

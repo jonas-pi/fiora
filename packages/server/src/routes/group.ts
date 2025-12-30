@@ -7,6 +7,10 @@ import getRandomAvatar from '@fiora/utils/getRandomAvatar';
 import Group, { GroupDocument } from '@fiora/database/mongoose/models/group';
 import Socket from '@fiora/database/mongoose/models/socket';
 import Message from '@fiora/database/mongoose/models/message';
+import {
+    Redis,
+    DisableCreateGroupKey,
+} from '@fiora/database/redis/initRedis';
 
 const { isValid } = Types.ObjectId;
 
@@ -40,7 +44,14 @@ async function getGroupOnlineMembersHelper(group: GroupDocument) {
  * @param ctx Context
  */
 export async function createGroup(ctx: Context<{ name: string }>) {
-    assert(!config.disableCreateGroup, '管理员已关闭创建群组功能');
+    // 从 Redis 读取配置，如果不存在则从环境变量读取
+    const disableCreateGroupRedis = await Redis.get(DisableCreateGroupKey);
+    const disableCreateGroup =
+        disableCreateGroupRedis !== null
+            ? disableCreateGroupRedis === 'true'
+            : config.disableCreateGroup;
+    
+    assert(!disableCreateGroup, '管理员已关闭创建群组功能');
 
     const ownGroupCount = await Group.count({ creator: ctx.socket.user });
     assert(

@@ -18,6 +18,7 @@ import {
     getNewRegisteredUserIpKey,
     getNewUserKey,
     Redis,
+    DisableRegisterKey,
 } from '@fiora/database/redis/initRedis';
 
 const { isValid } = Types.ObjectId;
@@ -85,7 +86,14 @@ async function getUserNotificationTokens(user: UserDocument) {
 export async function register(
     ctx: Context<{ username: string; password: string } & Environment>,
 ) {
-    assert(!config.disableRegister, '注册功能已被禁用, 请联系管理员开通账号');
+    // 从 Redis 读取配置，如果不存在则从环境变量读取
+    const disableRegisterRedis = await Redis.get(DisableRegisterKey);
+    const disableRegister =
+        disableRegisterRedis !== null
+            ? disableRegisterRedis === 'true'
+            : config.disableRegister;
+    
+    assert(!disableRegister, '注册功能已被禁用, 请联系管理员开通账号');
 
     const { username, password, os, browser, environment } = ctx.data;
     assert(username, '用户名不能为空');

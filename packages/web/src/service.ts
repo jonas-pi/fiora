@@ -427,3 +427,29 @@ export async function toggleNewUserSendMessage(enable: boolean) {
     const [, result] = await fetch('toggleNewUserSendMessage', { enable });
     return !!result;
 }
+
+/**
+ * 切换注册功能开关
+ * @param enable 是否启用注册
+ */
+export async function toggleRegister(enable: boolean) {
+    const [, result] = await fetch('toggleRegister', { enable });
+    return !!result;
+}
+
+/**
+ * 切换创建群组功能开关
+ * @param enable 是否启用创建群组
+ */
+export async function toggleCreateGroup(enable: boolean) {
+    const [, result] = await fetch('toggleCreateGroup', { enable });
+    return !!result;
+}
+
+/**
+ * 获取所有在线用户列表（管理员功能）
+ */
+export async function getAllOnlineUsers() {
+    const [, result] = await fetch('getAllOnlineUsers');
+    return result || [];
+}
