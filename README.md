@@ -38,50 +38,52 @@ Fiora provides two ways to install
 - [Install by source code](https://yinxin630.github.io/fiora/docs/install#how-to-run)
 - [Install by docker](https://yinxin630.github.io/fiora/docs/install#running-on-the-docker)
 
-## Configuration
+## Configuration / 配置说明
 
 Fiora supports configuration through environment variables. Create a `.env` file in the project root directory to configure the following options:
 
-### Server Configuration
+Fiora 支持通过环境变量进行配置。在项目根目录创建 `.env` 文件来配置以下选项：
 
-- `Host` - Server host address (default: local IP address)
-- `Port` - Server port (default: 9200)
-- `Database` - MongoDB connection string (default: mongodb://localhost:27017/fiora)
-- `RedisHost` - Redis host (default: localhost)
-- `RedisPort` - Redis port (default: 6379)
-- `JwtSecret` - JWT encryption secret (default: jwtSecret)
-- `MaxGroupCount` - Maximum number of groups per user (default: 3)
-- `AllowOrigin` - Allowed CORS origins (comma-separated)
-- `TokenExpiresTime` - Token expiration time in milliseconds (default: 30 days)
-- `Administrator` - Administrator user IDs (comma-separated)
-- `DisableRegister` - Disable user registration (default: false)
-- `DisableCreateGroup` - Disable user group creation (default: false)
-- `MaxFileSize` - Maximum file upload size in bytes (default: 20MB)
+### Server Configuration / 服务端配置
 
-### Client Configuration
+- `Host` - 服务端主机地址（默认：本机 IP 地址）
+- `Port` - 服务端端口（默认：9200）
+- `Database` - MongoDB 连接字符串（默认：mongodb://localhost:27017/fiora）
+- `RedisHost` - Redis 主机地址（默认：localhost）
+- `RedisPort` - Redis 端口（默认：6379）
+- `JwtSecret` - JWT 加密密钥（默认：jwtSecret）
+- `MaxGroupCount` - 每个用户最大群组数量（默认：3）
+- `AllowOrigin` - 允许的 CORS 源（逗号分隔）
+- `TokenExpiresTime` - Token 过期时间（毫秒，默认：30 天）
+- `Administrator` - 管理员用户 ID（逗号分隔）
+- `DisableRegister` - 禁用用户注册（默认：false）
+- `DisableCreateGroup` - 禁用用户创建群组（默认：false）
+- `MaxFileSize` - 最大文件上传大小（字节，默认：20MB）
 
-- `Server` - Server URL for client connection
-- `MaxImageSize` - Maximum image upload size in bytes (default: 10MB)
-- `MaxBackgroundImageSize` - Maximum background image size in bytes (default: 10MB)
-- `MaxAvatarSize` - Maximum avatar size in bytes (default: 3MB)
-- `MaxFileSize` - Maximum file upload size in bytes (default: 20MB)
-- `DefaultTheme` - Default theme (default: cool)
-- `Sound` - Default notification sound (default: default)
-- `TagColorMode` - Tag color mode (default: fixedColor)
-- `FrontendMonitorAppId` - Frontend monitoring app ID
-- `DisableDeleteMessage` - Disable message deletion for users (default: false)
-- `AndroidDownloadUrl` - Android APK download URL for QR code (recommended: set to public domain to ensure mobile devices can download)
+### Client Configuration / 客户端配置
 
-### Example `.env` file
+- `Server` - 客户端连接的服务端 URL
+- `MaxImageSize` - 最大图片上传大小（字节，默认：10MB）
+- `MaxBackgroundImageSize` - 最大背景图片大小（字节，默认：10MB）
+- `MaxAvatarSize` - 最大头像大小（字节，默认：3MB）
+- `MaxFileSize` - 最大文件上传大小（字节，默认：20MB）
+- `DefaultTheme` - 默认主题（默认：cool）
+- `Sound` - 默认通知音效（默认：default）
+- `TagColorMode` - 标签颜色模式（默认：fixedColor）
+- `FrontendMonitorAppId` - 前端监控应用 ID
+- `DisableDeleteMessage` - 禁用用户删除消息（默认：false）
+- `AndroidDownloadUrl` - Android APK 下载链接（用于二维码，建议设置为公网域名以确保手机扫码后可以正常下载）
+
+### Example `.env` file / 示例 `.env` 文件
 
 ```bash
-# Server Configuration
+# Server Configuration / 服务端配置
 Port=9200
 Database=mongodb://localhost:27017/fiora
 JwtSecret=your-secret-key
 Administrator=your-user-id
 
-# Client Configuration
+# Client Configuration / 客户端配置
 MaxImageSize=10485760
 MaxFileSize=20971520
 AndroidDownloadUrl=https://your-domain.com/fiora.apk
