@@ -22,6 +22,8 @@ export const get = promisify(client.get).bind(client);
 
 export const expire = promisify(client.expire).bind(client);
 
+export const del = promisify(client.del).bind(client);
+
 export async function set(key: string, value: string, expireTime = Infinity) {
     await promisify(client.set).bind(client)(key, value);
     if (expireTime !== Infinity) {
@@ -74,6 +76,7 @@ export const Redis = {
     has,
     expire,
     keys,
+    del,
     Minute,
     Hour,
     Day,
@@ -81,3 +84,17 @@ export const Redis = {
 
 export const DisableSendMessageKey = 'DisableSendMessage';
 export const DisableNewUserSendMessageKey = 'DisableNewUserSendMessageKey';
+export const DisableRegisterKey = 'DisableRegister';
+export const DisableCreateGroupKey = 'DisableCreateGroup';
+export const DisableDeleteMessageKey = 'DisableDeleteMessage';
+
+// 封禁用户名列表的Redis key前缀
+export function getBannedUsernameKey(username: string) {
+    return `BannedUsername-${username}`;
+}
+
+// 获取所有封禁的用户名
+export async function getAllBannedUsernames() {
+    const allBannedUsernameKeys = await keys('BannedUsername-*');
+    return allBannedUsernameKeys.map((key) => key.replace('BannedUsername-', ''));
+}

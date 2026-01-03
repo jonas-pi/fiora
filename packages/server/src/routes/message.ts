@@ -22,6 +22,7 @@ import Socket from '@fiora/database/mongoose/models/socket';
 import {
     DisableSendMessageKey,
     DisableNewUserSendMessageKey,
+    DisableDeleteMessageKey,
     Redis,
 } from '@fiora/database/redis/initRedis';
 import client from '../../../config/client';
@@ -411,8 +412,11 @@ export async function getDefaultGroupHistoryMessages(
  * 删除消息, 需要管理员权限
  */
 export async function deleteMessage(ctx: Context<{ messageId: string }>) {
+    // 检查Redis中的配置，如果Redis中没有则使用client配置中的默认值
+    const redisDisableDeleteMessage = (await Redis.get(DisableDeleteMessageKey)) === 'true';
+    const isDeleteMessageDisabled = redisDisableDeleteMessage || client.disableDeleteMessage;
     assert(
-        !client.disableDeleteMessage || ctx.socket.isAdmin,
+        !isDeleteMessageDisabled || ctx.socket.isAdmin,
         '已禁止撤回消息',
     );
 

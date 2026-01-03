@@ -19,6 +19,11 @@ import {
     getSealUserKey,
     DisableSendMessageKey,
     DisableNewUserSendMessageKey,
+    DisableRegisterKey,
+    DisableCreateGroupKey,
+    DisableDeleteMessageKey,
+    getBannedUsernameKey,
+    getAllBannedUsernames,
     Redis,
 } from '@fiora/database/redis/initRedis';
 
@@ -165,9 +170,36 @@ export async function sealUser(ctx: Context<{ username: string }>) {
 }
 
 /**
- * 获取封禁列表, 包含用户封禁和ip封禁, 需要管理员权限
+ * 解禁用户, 需要管理员权限
+ * @param ctx Context
  */
-export async function getSealList() {
+export async function cancelSealUser(ctx: Context<{ username: string }>) {
+    const { username } = ctx.data;
+    assert(username !== '', 'username不能为空');
+
+    const user = await User.findOne({ username });
+    if (!user) {
+        throw new AssertionError({ message: '用户不存在' });
+    }
+
+    const userId = user._id.toString();
+    const key = getSealUserKey(userId);
+    const isSealUser = await Redis.has(key);
+    assert(isSealUser, '用户不在封禁名单');
+
+    // 删除Redis key来解禁
+    await Redis.del(key);
+
+    return {
+        msg: 'ok',
+    };
+}
+
+/**
+ * 获取封禁列表, 包含用户封禁和ip封禁, 需要管理员权限
+ * @param ctx Context
+ */
+export async function getSealList(ctx: Context<any>) {
     const sealUserList = await getAllSealUser();
     const sealIpList = await getAllSealIp();
     const users = await User.find({ _id: { $in: sealUserList } });
@@ -195,6 +227,25 @@ export async function sealIp(ctx: Context<{ ip: string }>) {
     assert(!isSealIp, IpInSealList);
 
     await Redis.set(getSealIpKey(ip), ip, Redis.Hour * 6);
+
+    return {
+        msg: 'ok',
+    };
+}
+
+/**
+ * 解禁 ip 地址, 需要管理员权限
+ */
+export async function cancelSealIp(ctx: Context<{ ip: string }>) {
+    const { ip } = ctx.data;
+    assert(ip !== '', 'ip不能为空');
+
+    const key = getSealIpKey(ip);
+    const isSealIp = await Redis.has(key);
+    assert(isSealIp, 'ip不在封禁名单');
+
+    // 删除Redis key来解禁
+    await Redis.del(key);
 
     return {
         msg: 'ok',
@@ -347,10 +398,114 @@ export async function toggleNewUserSendMessage(
     };
 }
 
+/**
+ * 获取系统配置, 需要管理员权限
+ */
 export async function getSystemConfig() {
+    // 从Redis读取配置，如果不存在则从config读取默认值
+    const disableSendMessage = (await Redis.get(DisableSendMessageKey)) === 'true';
+    const disableNewUserSendMessage = (await Redis.get(DisableNewUserSendMessageKey)) === 'true';
+    const disableRegister = (await Redis.get(DisableRegisterKey)) === 'true' || config.disableRegister;
+    const disableCreateGroup = (await Redis.get(DisableCreateGroupKey)) === 'true' || config.disableCreateGroup;
+    const disableDeleteMessage = (await Redis.get(DisableDeleteMessageKey)) === 'true';
+    
     return {
-        disableSendMessage: (await Redis.get(DisableSendMessageKey)) === 'true',
-        disableNewUserSendMessage:
-            (await Redis.get(DisableNewUserSendMessageKey)) === 'true',
+        disableSendMessage,
+        disableNewUserSendMessage,
+        disableRegister,
+        disableCreateGroup,
+        disableDeleteMessage,
     };
+}
+
+/**
+ * 更新系统配置, 需要管理员权限
+ * @param ctx Context
+ */
+export async function updateSystemConfig(ctx: Context<{
+    disableSendMessage?: boolean;
+    disableNewUserSendMessage?: boolean;
+    disableRegister?: boolean;
+    disableCreateGroup?: boolean;
+    disableDeleteMessage?: boolean;
+}>) {
+    const { disableSendMessage, disableNewUserSendMessage, disableRegister, disableCreateGroup, disableDeleteMessage } = ctx.data;
+    
+    // 更新配置到Redis（直接存储传入的值，不需要取反）
+    if (typeof disableSendMessage === 'boolean') {
+        await Redis.set(DisableSendMessageKey, disableSendMessage.toString());
+    }
+    if (typeof disableNewUserSendMessage === 'boolean') {
+        await Redis.set(DisableNewUserSendMessageKey, disableNewUserSendMessage.toString());
+    }
+    if (typeof disableRegister === 'boolean') {
+        await Redis.set(DisableRegisterKey, disableRegister.toString());
+    }
+    if (typeof disableCreateGroup === 'boolean') {
+        await Redis.set(DisableCreateGroupKey, disableCreateGroup.toString());
+    }
+    if (typeof disableDeleteMessage === 'boolean') {
+        await Redis.set(DisableDeleteMessageKey, disableDeleteMessage.toString());
+    }
+    
+    return {
+        msg: 'ok',
+    };
+}
+
+/**
+ * 封禁用户名（禁止使用该用户名注册）, 需要管理员权限
+ * @param ctx Context
+ */
+export async function banUsername(ctx: Context<{ username: string }>) {
+    const { username } = ctx.data;
+    assert(username !== '', '用户名不能为空');
+    
+    const isBanned = await Redis.has(getBannedUsernameKey(username));
+    assert(!isBanned, '该用户名已在封禁名单');
+    
+    // 永久封禁，不设置过期时间
+    await Redis.set(getBannedUsernameKey(username), username, Infinity);
+    
+    return {
+        msg: 'ok',
+    };
+}
+
+/**
+ * 解禁用户名, 需要管理员权限
+ * @param ctx Context
+ */
+export async function unbanUsername(ctx: Context<{ username: string }>) {
+    const { username } = ctx.data;
+    assert(username !== '', '用户名不能为空');
+    
+    const key = getBannedUsernameKey(username);
+    const isBanned = await Redis.has(key);
+    assert(isBanned, '该用户名不在封禁名单');
+    
+    // 删除Redis key来解禁
+    await Redis.del(key);
+    
+    return {
+        msg: 'ok',
+    };
+}
+
+/**
+ * 获取封禁用户名列表, 需要管理员权限
+ * @param ctx Context
+ */
+export async function getBannedUsernameList(ctx: Context<any>) {
+    try {
+        logger.info('[getBannedUsernameList]', '函数被调用 - 时间戳:', Date.now());
+        const bannedUsernames = await getAllBannedUsernames();
+        logger.info('[getBannedUsernameList]', '封禁用户名数量:', bannedUsernames.length);
+        return {
+            usernames: bannedUsernames,
+        };
+    } catch (err) {
+        logger.error('[getBannedUsernameList]', '错误:', err);
+        throw err;
+    }
 }

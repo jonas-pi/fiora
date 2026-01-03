@@ -76,6 +76,13 @@ Object.keys(routes).forEach((key) => {
     }
 });
 
+// 调试：检查关键路由是否注册
+if (process.env.NODE_ENV === 'development') {
+    logger.info('[routes]', 'getBannedUsernameList exists:', typeof routes.getBannedUsernameList);
+    logger.info('[routes]', 'banUsername exists:', typeof routes.banUsername);
+    logger.info('[routes]', 'unbanUsername exists:', typeof routes.unbanUsername);
+}
+
 io.on('connection', async (socket) => {
     const ip = getSocketIp(socket);
     logger.trace(`connection ${socket.id} ${ip}`);
@@ -97,5 +104,8 @@ io.on('connection', async (socket) => {
     socket.use(frequency(socket));
     socket.use(registerRoutes(socket, routes));
 });
+
+// 导出io实例，供路由使用（例如删除用户时强制断开连接）
+export { io };
 
 export default httpServer;

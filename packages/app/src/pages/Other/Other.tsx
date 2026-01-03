@@ -144,6 +144,25 @@ function Other() {
                             />
                         </Right>
                     </ListItem>
+                    <ListItem
+                        icon
+                        onPress={() => {
+                            Actions.push('serverConfig');
+                        }}
+                    >
+                        <Body>
+                            <Text style={styles.listItemTitle}>
+                                服务器设置
+                            </Text>
+                        </Body>
+                        <Right>
+                            <Icon
+                                active
+                                name="arrow-forward"
+                                style={styles.listItemArrow}
+                            />
+                        </Right>
+                    </ListItem>
                 </List>
             </Content>
             {isLogin ? (

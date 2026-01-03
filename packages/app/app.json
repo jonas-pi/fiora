@@ -11,8 +11,12 @@
       "bundleIdentifier": "com.suisuijiang.fiora",
       "buildNumber": "1.1.4",
       "infoPlist": {
-        "LSApplicationQueriesSchemes": ["wxp"],
-        "CFBundleLocalizations" : ["zh_CN"],
+        "LSApplicationQueriesSchemes": [
+          "wxp"
+        ],
+        "CFBundleLocalizations": [
+          "zh_CN"
+        ],
         "CFBundleDevelopmentRegion": "zh_CN"
       }
     },
@@ -23,6 +27,9 @@
     },
     "updates": {
       "enabled": false
+    },
+    "extra": {
+      "serverHost": "http://192.168.2.33:9200"
     }
   }
 }

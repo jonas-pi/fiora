@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-
 import { css } from 'linaria';
 import Style from './Admin.less';
 import Common from './Common.less';
@@ -10,12 +9,19 @@ import Message from '../../components/Message';
 import {
     getSealList,
     resetUserPassword,
+    deleteUser,
     sealUser,
+    cancelSealUser,
     setUserTag,
     sealIp,
+    cancelSealIp,
     toggleSendMessage,
     toggleNewUserSendMessage,
     getSystemConfig,
+    updateSystemConfig,
+    banUsername,
+    unbanUsername,
+    getBannedUsernameList,
 } from '../../service';
 
 const styles = {
@@ -23,13 +29,35 @@ const styles = {
         min-width: 100px;
         height: 36px;
         margin-right: 12px;
+        margin-bottom: 12px;
         padding: 0 10px;
     `,
+    sealItem: css`
+        display: inline-block;
+        padding: 4px 8px;
+        margin: 4px;
+        background: #eee;
+        border-radius: 4px;
+        cursor: pointer;
+        &:hover {
+            background: #ffccc7;
+            text-decoration: line-through;
+        }
+    `,
+    select: css`
+        margin-right: 10px;
+        height: 34px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    `
 };
 
 type SystemConfig = {
     disableSendMessage: boolean;
     disableNewUserSendMessage: boolean;
+    disableRegister: boolean;
+    disableCreateGroup: boolean;
+    disableDeleteMessage: boolean;
 };
 
 interface AdminProps {
@@ -43,10 +71,14 @@ function Admin(props: AdminProps) {
     const [tagUsername, setTagUsername] = useState('');
     const [tag, setTag] = useState('');
     const [resetPasswordUsername, setResetPasswordUsername] = useState('');
+    const [deleteUsername, setDeleteUsername] = useState('');
     const [sealUsername, setSealUsername] = useState('');
+    const [sealDuration, setSealDuration] = useState('0'); // 0 代表永久
     const [sealList, setSealList] = useState({ users: [], ips: [] });
     const [sealIpAddress, setSealIpAddress] = useState('');
     const [systemConfig, setSystemConfig] = useState<SystemConfig>();
+    const [bannedUsername, setBannedUsername] = useState('');
+    const [bannedUsernameList, setBannedUsernameList] = useState<string[]>([]);
 
     async function handleGetSealList() {
         const sealListRes = await getSealList();
@@ -60,213 +92,329 @@ function Admin(props: AdminProps) {
             setSystemConfig(systemConfigRes);
         }
     }
+    async function handleGetBannedUsernameList() {
+        const res = await getBannedUsernameList();
+        if (res && res.usernames) {
+            setBannedUsernameList(res.usernames);
+        }
+    }
+
     useEffect(() => {
         if (visible) {
             handleGetSystemConfig();
             handleGetSealList();
+            handleGetBannedUsernameList();
         }
     }, [visible]);
 
-    /**
-     * 处理更新用户标签
-     */
-    async function handleSetTag() {
-        const isSuccess = await setUserTag(tagUsername, tag.trim());
+    async function handleUpdateConfig(key: keyof SystemConfig, value: boolean) {
+        const isSuccess = await updateSystemConfig({ [key]: value });
         if (isSuccess) {
-            Message.success('更新用户标签成功, 请刷新页面更新数据');
-            setTagUsername('');
-            setTag('');
+            Message.success('设置更新成功');
+            handleGetSystemConfig();
         }
     }
 
-    /**
-     * 处理重置用户密码操作
-     */
-    async function handleResetPassword() {
-        const res = await resetUserPassword(resetPasswordUsername);
-        if (res) {
-            Message.success(`已将该用户的密码重置为:${res.newPassword}`);
-            setResetPasswordUsername('');
+    async function handleSeal(username?: string, isCancel = false) {
+        const target = username || sealUsername;
+        if (!target) {
+            Message.error('请输入用户名');
+            return;
+        }
+        
+        let isSuccess = false;
+        if (isCancel) {
+            // 解禁用户
+            console.log('[解禁用户] 用户名:', target);
+            isSuccess = await cancelSealUser(target);
+            console.log('[解禁用户] 结果:', isSuccess);
+        } else {
+            // 封禁用户
+            isSuccess = await sealUser(target);
+        }
+        
+        if (isSuccess) {
+            Message.success(isCancel ? '已解禁' : '已封禁');
+            if (!isCancel) setSealUsername('');
+            // 立即刷新封禁列表
+            setTimeout(() => {
+                handleGetSealList();
+            }, 200);
+        } else {
+            Message.error(isCancel ? '解禁失败，请重试' : '封禁失败，请重试');
         }
     }
-    /**
-     * 处理封禁用户操作
-     */
-    async function handleSeal() {
-        const isSuccess = await sealUser(sealUsername);
+
+    async function handleSealIp(ip?: string, isCancel = false) {
+        const target = ip || sealIpAddress;
+        if (!target) {
+            Message.error('请输入IP地址');
+            return;
+        }
+        
+        let isSuccess = false;
+        if (isCancel) {
+            // 解禁IP
+            isSuccess = await cancelSealIp(target);
+        } else {
+            // 封禁IP
+            isSuccess = await sealIp(target);
+        }
+        
         if (isSuccess) {
-            Message.success('封禁用户成功');
-            setSealUsername('');
+            Message.success(isCancel ? 'IP已解禁' : 'IP已封禁');
+            if (!isCancel) setSealIpAddress('');
             handleGetSealList();
         }
     }
 
-    async function handleSealIp() {
-        const isSuccess = await sealIp(sealIpAddress);
+    async function handleBanUsername() {
+        if (!bannedUsername.trim()) {
+            Message.error('请输入用户名');
+            return;
+        }
+        const isSuccess = await banUsername(bannedUsername.trim());
         if (isSuccess) {
-            Message.success('封禁ip成功');
-            setSealIpAddress('');
-            handleGetSealList();
+            Message.success('用户名已封禁');
+            setBannedUsername('');
+            handleGetBannedUsernameList();
         }
     }
 
-    async function handleDisableSendMessage() {
-        const isSuccess = await toggleSendMessage(false);
+    async function handleUnbanUsername(username: string) {
+        const isSuccess = await unbanUsername(username);
         if (isSuccess) {
-            Message.success('开启禁言成功');
-            handleGetSystemConfig();
-        }
-    }
-    async function handleEnableSendMessage() {
-        const isSuccess = await toggleSendMessage(true);
-        if (isSuccess) {
-            Message.success('关闭禁言成功');
-            handleGetSystemConfig();
-        }
-    }
-
-    async function handleDisableSNewUserendMessage() {
-        const isSuccess = await toggleNewUserSendMessage(false);
-        if (isSuccess) {
-            Message.success('开启新用户禁言成功');
-            handleGetSystemConfig();
-        }
-    }
-    async function handleEnableNewUserSendMessage() {
-        const isSuccess = await toggleNewUserSendMessage(true);
-        if (isSuccess) {
-            Message.success('关闭新用户禁言成功');
-            handleGetSystemConfig();
+            Message.success('用户名已解禁');
+            handleGetBannedUsernameList();
         }
     }
 
     return (
-        <Dialog
-            className={Style.admin}
-            visible={visible}
-            title="管理员控制台"
-            onClose={onClose}
-        >
+        <Dialog className={Style.admin} visible={visible} title="管理员控制台" onClose={onClose}>
             <div className={Common.container}>
                 <div className={Common.block}>
-                    {!systemConfig?.disableSendMessage ? (
-                        <Button
-                            className={styles.button}
-                            type="danger"
-                            onClick={handleDisableSendMessage}
-                        >
-                            开启禁言
-                        </Button>
-                    ) : (
-                        <Button
-                            className={styles.button}
-                            onClick={handleEnableSendMessage}
-                        >
-                            关闭禁言
-                        </Button>
-                    )}
-                    {!systemConfig?.disableNewUserSendMessage ? (
-                        <Button
-                            className={styles.button}
-                            type="danger"
-                            onClick={handleDisableSNewUserendMessage}
-                        >
-                            开启新用户禁言
-                        </Button>
-                    ) : (
-                        <Button
-                            className={styles.button}
-                            onClick={handleEnableNewUserSendMessage}
-                        >
-                            关闭新用户禁言
-                        </Button>
-                    )}
-                </div>
-                <div className={Common.block}>
-                    <p className={Common.title}>更新用户标签</p>
-                    <div className={Style.inputBlock}>
-                        <Input
-                            className={`${Style.input} ${Style.tagUsernameInput}`}
-                            value={tagUsername}
-                            onChange={setTagUsername}
-                            placeholder="要更新标签的用户名"
-                        />
-                        <Input
-                            className={`${Style.input} ${Style.tagInput}`}
-                            value={tag}
-                            onChange={setTag}
-                            placeholder="标签内容"
-                        />
-                        <Button className={Style.button} onClick={handleSetTag}>
-                            确定
-                        </Button>
-                    </div>
-                </div>
-                <div className={Common.block}>
-                    <p className={Common.title}>重置用户密码</p>
-                    <div className={Style.inputBlock}>
-                        <Input
-                            className={Style.input}
-                            value={resetPasswordUsername}
-                            onChange={setResetPasswordUsername}
-                            placeholder="要重置密码的用户名"
-                        />
-                        <Button
-                            className={Style.button}
-                            onClick={handleResetPassword}
-                        >
-                            确定
-                        </Button>
-                    </div>
+                    <p className={Common.title}>全局开关</p>
+                    {/* 全局禁言按钮：显示当前状态，点击切换 */}
+                    <Button 
+                        className={styles.button} 
+                        type={systemConfig?.disableSendMessage ? "danger" : "primary"} 
+                        onClick={async () => {
+                            if (systemConfig === undefined) return;
+                            const currentValue = systemConfig.disableSendMessage;
+                            const newValue = !currentValue;
+                            console.log('[全局禁言] 当前值:', currentValue, '新值:', newValue);
+                            const isSuccess = await updateSystemConfig({ disableSendMessage: newValue });
+                            if (isSuccess) {
+                                Message.success(newValue ? '已开启全局禁言' : '已关闭全局禁言');
+                                // 立即更新本地状态
+                                setSystemConfig(prev => {
+                                    if (!prev) return prev;
+                                    const updated = { ...prev, disableSendMessage: newValue };
+                                    console.log('[全局禁言] 更新后的状态:', updated);
+                                    return updated;
+                                });
+                                // 延迟一点再从服务器获取，确保状态已更新
+                                setTimeout(() => {
+                                    handleGetSystemConfig();
+                                }, 100);
+                            } else {
+                                Message.error('操作失败，请重试');
+                            }
+                        }}
+                    >
+                        {systemConfig?.disableSendMessage ? '全局禁言 [已开启]' : '全局禁言 [已关闭]'}
+                    </Button>
+                    {/* 新用户发言按钮：显示当前状态，点击切换 */}
+                    <Button 
+                        className={styles.button} 
+                        type={systemConfig?.disableNewUserSendMessage ? "danger" : "primary"} 
+                        onClick={async () => {
+                            if (systemConfig === undefined) return;
+                            const currentValue = systemConfig.disableNewUserSendMessage;
+                            const newValue = !currentValue;
+                            const isSuccess = await updateSystemConfig({ disableNewUserSendMessage: newValue });
+                            if (isSuccess) {
+                                Message.success(newValue ? '已禁止新用户发言' : '已允许新用户发言');
+                                setSystemConfig(prev => prev ? { ...prev, disableNewUserSendMessage: newValue } : prev);
+                                setTimeout(() => {
+                                    handleGetSystemConfig();
+                                }, 100);
+                            } else {
+                                Message.error('操作失败，请重试');
+                            }
+                        }}
+                    >
+                        {systemConfig?.disableNewUserSendMessage ? '新用户发言 [已禁止]' : '新用户发言 [已允许]'}
+                    </Button>
+                    {/* 注册功能按钮：显示当前状态，点击切换 */}
+                    <Button 
+                        className={styles.button} 
+                        type={systemConfig?.disableRegister ? "danger" : "primary"} 
+                        onClick={async () => {
+                            if (systemConfig === undefined) return;
+                            const currentValue = systemConfig.disableRegister;
+                            const newValue = !currentValue;
+                            const isSuccess = await updateSystemConfig({ disableRegister: newValue });
+                            if (isSuccess) {
+                                Message.success(newValue ? '已禁止注册' : '已允许注册');
+                                setSystemConfig(prev => prev ? { ...prev, disableRegister: newValue } : prev);
+                                setTimeout(() => {
+                                    handleGetSystemConfig();
+                                }, 100);
+                            } else {
+                                Message.error('操作失败，请重试');
+                            }
+                        }}
+                    >
+                        {systemConfig?.disableRegister ? '用户注册 [已禁止]' : '用户注册 [已允许]'}
+                    </Button>
+                    {/* 建群功能按钮：显示当前状态，点击切换 */}
+                    <Button 
+                        className={styles.button} 
+                        type={systemConfig?.disableCreateGroup ? "danger" : "primary"} 
+                        onClick={async () => {
+                            if (systemConfig === undefined) return;
+                            const currentValue = systemConfig.disableCreateGroup;
+                            const newValue = !currentValue;
+                            const isSuccess = await updateSystemConfig({ disableCreateGroup: newValue });
+                            if (isSuccess) {
+                                Message.success(newValue ? '已禁止建群' : '已允许建群');
+                                setSystemConfig(prev => prev ? { ...prev, disableCreateGroup: newValue } : prev);
+                                setTimeout(() => {
+                                    handleGetSystemConfig();
+                                }, 100);
+                            } else {
+                                Message.error('操作失败，请重试');
+                            }
+                        }}
+                    >
+                        {systemConfig?.disableCreateGroup ? '创建群组 [已禁止]' : '创建群组 [已允许]'}
+                    </Button>
+                    {/* 撤回消息按钮：显示当前状态，点击切换 */}
+                    <Button 
+                        className={styles.button} 
+                        type={systemConfig?.disableDeleteMessage ? "danger" : "primary"} 
+                        onClick={async () => {
+                            if (systemConfig === undefined) return;
+                            const currentValue = systemConfig.disableDeleteMessage;
+                            const newValue = !currentValue;
+                            const isSuccess = await updateSystemConfig({ disableDeleteMessage: newValue });
+                            if (isSuccess) {
+                                Message.success(newValue ? '已禁止撤回消息' : '已允许撤回消息');
+                                setSystemConfig(prev => prev ? { ...prev, disableDeleteMessage: newValue } : prev);
+                                setTimeout(() => {
+                                    handleGetSystemConfig();
+                                }, 100);
+                            } else {
+                                Message.error('操作失败，请重试');
+                            }
+                        }}
+                    >
+                        {systemConfig?.disableDeleteMessage ? '撤回消息 [已禁止]' : '撤回消息 [已允许]'}
+                    </Button>
                 </div>
 
                 <div className={Common.block}>
-                    <p className={Common.title}>封禁用户</p>
+                    <p className={Common.title}>封禁用户 (点击列表可解禁)</p>
                     <div className={Style.inputBlock}>
-                        <Input
-                            className={Style.input}
-                            value={sealUsername}
-                            onChange={setSealUsername}
-                            placeholder="要封禁的用户名"
-                        />
-                        <Button className={Style.button} onClick={handleSeal}>
-                            确定
-                        </Button>
+                        <Input className={Style.input} value={sealUsername} onChange={setSealUsername} placeholder="用户名" />
+                        <select className={styles.select} value={sealDuration} onChange={(e) => setSealDuration(e.target.value)}>
+                            <option value="0">永久</option>
+                            <option value="10">10分钟</option>
+                            <option value="60">1小时</option>
+                            <option value="1440">1天</option>
+                        </select>
+                        <Button className={Style.button} onClick={() => handleSeal()}>确定</Button>
                     </div>
-                </div>
-                <div className={Common.block}>
-                    <p className={Common.title}>封禁用户列表</p>
                     <div className={Style.sealList}>
-                        {sealList.users.map((username) => (
-                            <span className={Style.sealUsername} key={username}>
-                                {username}
+                        {sealList.users.map((u) => (
+                            <span className={styles.sealItem} key={u} onClick={() => handleSeal(u, true)} title="点击解禁">
+                                {u} ✖
                             </span>
                         ))}
                     </div>
                 </div>
 
                 <div className={Common.block}>
-                    <p className={Common.title}>封禁ip</p>
+                    <p className={Common.title}>封禁IP (点击列表可解禁)</p>
                     <div className={Style.inputBlock}>
-                        <Input
-                            className={Style.input}
-                            value={sealIpAddress}
-                            onChange={setSealIpAddress}
-                            placeholder="要封禁的ip"
-                        />
-                        <Button className={Style.button} onClick={handleSealIp}>
-                            确定
-                        </Button>
+                        <Input className={Style.input} value={sealIpAddress} onChange={setSealIpAddress} placeholder="IP地址" />
+                        <Button className={Style.button} onClick={() => handleSealIp()}>确定</Button>
                     </div>
-                </div>
-                <div className={Common.block}>
-                    <p className={Common.title}>封禁ip列表</p>
                     <div className={Style.sealList}>
                         {sealList.ips.map((ip) => (
-                            <span className={Style.sealUsername} key={ip}>
-                                {ip}
+                            <span className={styles.sealItem} key={ip} onClick={() => handleSealIp(ip, true)} title="点击解禁">
+                                {ip} ✖
                             </span>
                         ))}
+                    </div>
+                </div>
+
+                <div className={Common.block}>
+                    <p className={Common.title}>封禁用户名列表 (点击列表可解禁)</p>
+                    <p className={Style.tip}>封禁的用户名将无法用于注册新账号</p>
+                    <div className={Style.inputBlock}>
+                        <Input 
+                            className={Style.input} 
+                            value={bannedUsername} 
+                            onChange={setBannedUsername} 
+                            placeholder="要封禁的用户名" 
+                        />
+                        <Button className={Style.button} onClick={handleBanUsername}>封禁</Button>
+                    </div>
+                    <div className={Style.sealList}>
+                        {bannedUsernameList.map((username) => (
+                            <span 
+                                className={styles.sealItem} 
+                                key={username} 
+                                onClick={() => handleUnbanUsername(username)} 
+                                title="点击解禁"
+                            >
+                                {username} ✖
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div className={Common.block}>
+                    <p className={Common.title}>用户管理</p>
+                    <div className={Style.inputBlock}>
+                        <Input className={Style.input} value={resetPasswordUsername} onChange={setResetPasswordUsername} placeholder="重置密码用户名" />
+                        <Button className={Style.button} onClick={async () => {
+                            const res = await resetUserPassword(resetPasswordUsername);
+                            if (res) Message.success(`新密码:${res.newPassword}`);
+                        }}>重置密码</Button>
+                    </div>
+                    <div className={Style.inputBlock} style={{ marginTop: '10px' }}>
+                        <Input 
+                            className={Style.input} 
+                            value={deleteUsername} 
+                            onChange={setDeleteUsername} 
+                            placeholder="删除用户名（将删除用户所有数据并强制下线）" 
+                        />
+                        <Button 
+                            className={Style.button} 
+                            type="danger"
+                            onClick={async () => {
+                                if (!deleteUsername.trim()) {
+                                    Message.error('请输入用户名');
+                                    return;
+                                }
+                                // 确认删除
+                                if (!window.confirm(`确定要删除用户 "${deleteUsername}" 吗？\n此操作将：\n1. 删除用户所有数据（消息、群组关系、好友关系等）\n2. 强制下线该用户\n3. 此操作不可恢复！`)) {
+                                    return;
+                                }
+                                const isSuccess = await deleteUser(deleteUsername.trim());
+                                if (isSuccess) {
+                                    Message.success('用户已删除');
+                                    setDeleteUsername('');
+                                } else {
+                                    Message.error('删除用户失败，请重试');
+                                }
+                            }}
+                        >
+                            删除用户
+                        </Button>
                     </div>
                 </div>
             </div>

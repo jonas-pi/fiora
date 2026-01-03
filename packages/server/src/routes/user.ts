@@ -4,6 +4,7 @@ import jwt from 'jwt-simple';
 import { Types } from '@fiora/database/mongoose';
 
 import config from '@fiora/config/server';
+import logger from '@fiora/utils/logger';
 import getRandomAvatar from '@fiora/utils/getRandomAvatar';
 import { SALT_ROUNDS } from '@fiora/utils/const';
 import User, { UserDocument } from '@fiora/database/mongoose/models/user';
@@ -14,9 +15,13 @@ import Message, {
     handleInviteV2Messages,
 } from '@fiora/database/mongoose/models/message';
 import Notification from '@fiora/database/mongoose/models/notification';
+import History from '@fiora/database/mongoose/models/history';
+import { io } from '../app';
 import {
     getNewRegisteredUserIpKey,
     getNewUserKey,
+    getBannedUsernameKey,
+    DisableRegisterKey,
     Redis,
 } from '@fiora/database/redis/initRedis';
 
@@ -85,19 +90,44 @@ async function getUserNotificationTokens(user: UserDocument) {
 export async function register(
     ctx: Context<{ username: string; password: string } & Environment>,
 ) {
-    assert(!config.disableRegister, '注册功能已被禁用, 请联系管理员开通账号');
+    // 检查Redis中的配置，如果Redis中没有则使用config中的默认值
+    const redisDisableRegister = (await Redis.get(DisableRegisterKey)) === 'true';
+    const isRegisterDisabled = redisDisableRegister || config.disableRegister;
+    assert(!isRegisterDisabled, '注册功能已被禁用, 请联系管理员开通账号');
 
     const { username, password, os, browser, environment } = ctx.data;
     assert(username, '用户名不能为空');
     assert(password, '密码不能为空');
 
+    // 检查用户名是否被封禁
+    try {
+        const isBanned = await Redis.has(getBannedUsernameKey(username));
+        assert(!isBanned, '该用户名已被封禁，无法使用');
+    } catch (redisError) {
+        // Redis连接错误时，记录日志但不阻止注册（降级处理）
+        logger.error('[register] Redis error when checking banned username:', redisError);
+        // 继续执行，不阻止注册
+    }
+
     const user = await User.findOne({ username });
     assert(!user, '该用户名已存在');
 
-    const registeredCountWithin24Hours = await Redis.get(
-        getNewRegisteredUserIpKey(ctx.socket.ip),
-    );
-    assert(parseInt(registeredCountWithin24Hours || '0', 10) < 3, '系统错误');
+    // 检查24小时内同一IP注册次数限制
+    let registeredCountWithin24Hours: string | null = null;
+    try {
+        registeredCountWithin24Hours = await Redis.get(
+            getNewRegisteredUserIpKey(ctx.socket.ip),
+        );
+    } catch (redisError) {
+        // Redis连接错误时，记录日志但不阻止注册（降级处理）
+        logger.error('[register] Redis error when checking registration limit:', redisError);
+        // 继续执行，不阻止注册
+    }
+    // 只有在Redis正常连接时才检查注册限制
+    if (registeredCountWithin24Hours !== null) {
+        const count = parseInt(registeredCountWithin24Hours || '0', 10);
+        assert(count < 3, '24小时内同一IP地址最多只能注册3个账号，请稍后再试');
+    }
 
     const defaultGroup = await Group.findOne({ isDefault: true });
     if (!defaultGroup) {
@@ -512,6 +542,81 @@ export async function resetUserPassword(ctx: Context<{ username: string }>) {
 
     return {
         newPassword,
+    };
+}
+
+/**
+ * 删除用户, 需要管理员权限
+ * 删除用户及其所有相关数据（消息、群组关系、好友关系等），并强制下线
+ * @param ctx Context
+ */
+export async function deleteUser(ctx: Context<{ username: string }>) {
+    const { username } = ctx.data;
+    assert(username !== '', 'username不能为空');
+
+    const user = await User.findOne({ username });
+    if (!user) {
+        throw new AssertionError({ message: '用户不存在' });
+    }
+
+    const userId = user._id.toString();
+    
+    // 强制断开该用户的所有socket连接
+    const userSockets = await Socket.find({ user: userId });
+    const socketIds = userSockets.map((s) => s.id);
+    socketIds.forEach((socketId) => {
+        const socket = io.sockets.sockets.get(socketId);
+        if (socket) {
+            socket.emit('forceLogout', { reason: '账户已被管理员删除' });
+            socket.disconnect(true);
+        }
+    });
+
+    // 删除用户创建的所有消息
+    const messages = await Message.find({ from: user._id });
+    if (messages.length > 0) {
+        // 删除消息相关的历史记录
+        await History.deleteMany({
+            message: {
+                $in: messages.map((message) => message._id),
+            },
+        });
+        // 删除消息
+        await Message.deleteMany({ from: user._id });
+    }
+
+    // 从所有群组中移除该用户
+    const groups = await Group.find({ members: user._id });
+    await Promise.all(
+        groups.map(async (group) => {
+            const index = group.members.indexOf(user._id);
+            if (index !== -1) {
+                group.members.splice(index, 1);
+            }
+            // 如果用户是群主，清除群主信息
+            if (group.creator?.toString() === userId) {
+                // @ts-ignore
+                group.creator = null;
+            }
+            await group.save();
+        }),
+    );
+
+    // 删除该用户的所有好友关系
+    await Friend.deleteMany({ from: user._id });
+    await Friend.deleteMany({ to: user._id });
+
+    // 删除该用户的socket记录
+    await Socket.deleteMany({ user: user._id });
+
+    // 删除该用户的通知
+    await Notification.deleteMany({ user: user._id });
+
+    // 最后删除用户本身
+    await User.deleteOne({ _id: user._id });
+
+    return {
+        msg: 'ok',
     };
 }
 

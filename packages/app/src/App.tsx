@@ -8,6 +8,7 @@ import ChatList from './pages/ChatList/ChatList';
 import Chat from './pages/Chat/Chat';
 import Login from './pages/LoginSignup/Login';
 import Signup from './pages/LoginSignup/Signup';
+import ServerConfig from './pages/ServerConfig/ServerConfig';
 
 import Loading from './components/Loading';
 import Other from './pages/Other/Other';
@@ -48,6 +49,12 @@ function App({ title, primaryColor, isLogin }: Props) {
             <Root>
                 <Router>
                     <Stack hideNavBar>
+                        <Scene
+                            key="serverConfig"
+                            component={ServerConfig}
+                            title="配置服务器"
+                            hideNavBar
+                        />
                         <Lightbox>
                             <Tabs
                                 key="tabs"

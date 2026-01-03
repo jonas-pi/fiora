@@ -12,6 +12,13 @@ lerna-debug.log
 
 .env
 
+# Expo / React Native
+.expo/
+.expo-shared/
+packages/app/android/
+packages/app/ios/
+packages/app/index.js
+
 packages/server/public/*
 !packages/server/public/avatar/
 packages/server/public/avatar/*_*.*

@@ -350,11 +350,29 @@ export async function sealUser(username: string) {
 }
 
 /**
+ * 解禁用户
+ * @param username 目标用户名
+ */
+export async function cancelSealUser(username: string) {
+    const [err] = await fetch('cancelSealUser', { username });
+    return !err;
+}
+
+/**
  * 封禁ip
  * @param ip ip地址
  */
 export async function sealIp(ip: string) {
     const [err] = await fetch('sealIp', { ip });
+    return !err;
+}
+
+/**
+ * 解禁ip
+ * @param ip ip地址
+ */
+export async function cancelSealIp(ip: string) {
+    const [err] = await fetch('cancelSealIp', { ip });
     return !err;
 }
 
@@ -387,6 +405,15 @@ export async function getSystemConfig() {
 export async function resetUserPassword(username: string) {
     const [, res] = await fetch('resetUserPassword', { username });
     return res;
+}
+
+/**
+ * 删除用户（从数据库删除用户并强制下线）
+ * @param username 目标用户名
+ */
+export async function deleteUser(username: string) {
+    const [err] = await fetch('deleteUser', { username });
+    return !err;
 }
 
 /**
@@ -426,4 +453,45 @@ export async function toggleSendMessage(enable: boolean) {
 export async function toggleNewUserSendMessage(enable: boolean) {
     const [, result] = await fetch('toggleNewUserSendMessage', { enable });
     return !!result;
+}
+
+/**
+ * 更新系统配置
+ * @param config 配置对象
+ */
+export async function updateSystemConfig(config: {
+    disableSendMessage?: boolean;
+    disableNewUserSendMessage?: boolean;
+    disableRegister?: boolean;
+    disableCreateGroup?: boolean;
+    disableDeleteMessage?: boolean;
+}) {
+    const [, result] = await fetch('updateSystemConfig', config);
+    return !!result;
+}
+
+/**
+ * 封禁用户名
+ * @param username 要封禁的用户名
+ */
+export async function banUsername(username: string) {
+    const [err] = await fetch('banUsername', { username });
+    return !err;
+}
+
+/**
+ * 解禁用户名
+ * @param username 要解禁的用户名
+ */
+export async function unbanUsername(username: string) {
+    const [err] = await fetch('unbanUsername', { username });
+    return !err;
+}
+
+/**
+ * 获取封禁用户名列表
+ */
+export async function getBannedUsernameList() {
+    const [, result] = await fetch('getBannedUsernameList');
+    return result;
 }
