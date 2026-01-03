@@ -114,12 +114,17 @@ export async function guest(os = '', browser = '', environment = '') {
 }
 
 /**
- * 修用户头像
- * @param avatar 新头像链接
+ * 修改用户头像
+ * @param avatar 新头像链接，空字符串表示重置为默认头像
+ * @returns 返回新的头像URL，失败返回null
  */
-export async function changeAvatar(avatar: string) {
-    const [error] = await fetch('changeAvatar', { avatar });
-    return !error;
+export async function changeAvatar(avatar: string): Promise<string | null> {
+    const [error, result] = await fetch('changeAvatar', { avatar });
+    if (error) {
+        return null;
+    }
+    // 服务端返回 { avatar: string }，如果为空字符串重置，返回默认头像URL
+    return result?.avatar || null;
 }
 
 /**

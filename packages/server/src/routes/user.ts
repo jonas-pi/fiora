@@ -5,7 +5,7 @@ import { Types } from '@fiora/database/mongoose';
 
 import config from '@fiora/config/server';
 import logger from '@fiora/utils/logger';
-import getRandomAvatar from '@fiora/utils/getRandomAvatar';
+import getRandomAvatar, { getDefaultAvatar } from '@fiora/utils/getRandomAvatar';
 import { SALT_ROUNDS } from '@fiora/utils/const';
 import User, { UserDocument } from '@fiora/database/mongoose/models/user';
 import Group, { GroupDocument } from '@fiora/database/mongoose/models/group';
@@ -411,16 +411,28 @@ export async function guest(ctx: Context<Environment>) {
  */
 export async function changeAvatar(ctx: Context<{ avatar: string }>) {
     const { avatar } = ctx.data;
-    assert(avatar, '新头像链接不能为空');
+    
+    // 如果 avatar 为空字符串或只包含空格，则重置为随机默认头像
+    let avatarUrl = avatar;
+    if (!avatar || avatar.trim() === '') {
+        // 使用随机默认头像（方案一：支持空字符串重置，随机返回一个默认头像）
+        avatarUrl = getRandomAvatar();
+    } else {
+        // 验证非空头像链接
+        assert(avatar.trim(), '新头像链接不能为空');
+        avatarUrl = avatar.trim();
+    }
 
     await User.updateOne(
         { _id: ctx.socket.user },
         {
-            avatar,
+            avatar: avatarUrl,
         },
     );
 
-    return {};
+    return {
+        avatar: avatarUrl,
+    };
 }
 
 /**
