@@ -63,9 +63,16 @@ export default async function uploadFile(
 ): Promise<string> {
     // 阿里云 OSS 不可用, 上传文件到服务端
     if (!ossClient) {
+        // 将 Blob 转换为 ArrayBuffer，因为 socket.io 无法直接传输 Blob 对象
+        const arrayBuffer = await blob.arrayBuffer();
+        // 将 ArrayBuffer 转换为 Uint8Array，然后转换为普通数组以便 JSON 序列化
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const fileData = Array.from(uint8Array);
+        
         const [uploadErr, result] = await fetch('uploadFile', {
-            file: blob,
+            file: fileData,
             fileName,
+            isBase64: false,
         });
         if (uploadErr) {
             throw Error(uploadErr);

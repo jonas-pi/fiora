@@ -7,16 +7,16 @@ export default {
 
     maxImageSize: process.env.MaxImageSize
         ? parseInt(process.env.MaxImageSize, 10)
-        : MB * 5,
+        : MB * 10, // 10MB（原 5MB）
     maxBackgroundImageSize: process.env.MaxBackgroundImageSize
         ? parseInt(process.env.MaxBackgroundImageSize, 10)
-        : MB * 5,
+        : MB * 10, // 10MB（原 5MB）
     maxAvatarSize: process.env.MaxAvatarSize
         ? parseInt(process.env.MaxAvatarSize, 10)
-        : MB * 1.5,
+        : MB * 3, // 3MB（原 1.5MB）
     maxFileSize: process.env.MaxFileSize
         ? parseInt(process.env.MaxFileSize, 10)
-        : MB * 10,
+        : MB * 20, // 20MB（原 10MB）
 
     // client default system setting
     defaultTheme: process.env.DefaultTheme || 'cool',

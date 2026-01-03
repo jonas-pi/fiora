@@ -456,7 +456,6 @@ export async function toggleNewUserSendMessage(enable: boolean) {
 }
 
 /**
-<<<<<<< HEAD
  * 更新系统配置
  * @param config 配置对象
  */
@@ -468,18 +467,28 @@ export async function updateSystemConfig(config: {
     disableDeleteMessage?: boolean;
 }) {
     const [, result] = await fetch('updateSystemConfig', config);
-=======
+    return !!result;
+}
+
+/**
  * 切换注册功能开关
  * @param enable 是否启用注册
  */
 export async function toggleRegister(enable: boolean) {
     const [, result] = await fetch('toggleRegister', { enable });
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     return !!result;
 }
 
 /**
-<<<<<<< HEAD
+ * 切换创建群组功能开关
+ * @param enable 是否启用创建群组
+ */
+export async function toggleCreateGroup(enable: boolean) {
+    const [, result] = await fetch('toggleCreateGroup', { enable });
+    return !!result;
+}
+
+/**
  * 封禁用户名
  * @param username 要封禁的用户名
  */
@@ -503,13 +512,6 @@ export async function unbanUsername(username: string) {
 export async function getBannedUsernameList() {
     const [, result] = await fetch('getBannedUsernameList');
     return result;
-=======
- * 切换创建群组功能开关
- * @param enable 是否启用创建群组
- */
-export async function toggleCreateGroup(enable: boolean) {
-    const [, result] = await fetch('toggleCreateGroup', { enable });
-    return !!result;
 }
 
 /**
@@ -518,5 +520,4 @@ export async function toggleCreateGroup(enable: boolean) {
 export async function getAllOnlineUsers() {
     const [, result] = await fetch('getAllOnlineUsers');
     return result || [];
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 }

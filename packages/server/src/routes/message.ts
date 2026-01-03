@@ -3,9 +3,13 @@
 import assert, { AssertionError } from 'assert';
 import { Types } from '@fiora/database/mongoose';
 import { Expo, ExpoPushErrorTicket } from 'expo-server-sdk';
+import fs from 'fs';
+import path from 'path';
+import { promisify } from 'util';
 
 import xss from '@fiora/utils/xss';
 import logger from '@fiora/utils/logger';
+import config from '@fiora/config/server';
 import User, { UserDocument } from '@fiora/database/mongoose/models/user';
 import Group, { GroupDocument } from '@fiora/database/mongoose/models/group';
 import Message, {
@@ -432,6 +436,46 @@ export async function deleteMessage(ctx: Context<{ messageId: string }>) {
             message.from.toString() === ctx.socket.user.toString(),
         '只能撤回本人的消息',
     );
+
+    // 删除消息前，先删除关联的文件（如果是图片或文件消息）
+    if ((message.type === 'image' || message.type === 'file') && !config.aliyunOSS.enable) {
+        try {
+            // 从消息内容中提取文件路径
+            let filePath: string | null = null;
+            if (message.type === 'image') {
+                // 图片消息格式：/ImageMessage/userId_timestamp?width=xxx&height=xxx
+                const urlMatch = message.content.match(/^(\/[^?]+)/);
+                if (urlMatch) {
+                    filePath = urlMatch[1];
+                }
+            } else if (message.type === 'file') {
+                // 文件消息格式：JSON.stringify({ fileUrl, filename, size, ext })
+                try {
+                    const fileData = JSON.parse(message.content);
+                    if (fileData.fileUrl && fileData.fileUrl.startsWith('/')) {
+                        filePath = fileData.fileUrl.split('?')[0]; // 去除查询参数
+                    }
+                } catch (e) {
+                    // JSON 解析失败，忽略
+                }
+            }
+
+            // 删除本地文件
+            if (filePath) {
+                const fullPath = path.resolve(__dirname, '../../public', filePath.substring(1)); // 去除开头的 /
+                try {
+                    await promisify(fs.unlink)(fullPath);
+                    logger.info('[deleteMessage] deleted file:', fullPath);
+                } catch (err) {
+                    // 文件不存在或删除失败，记录日志但不影响消息删除
+                    logger.warn('[deleteMessage] failed to delete file:', fullPath, (err as Error).message);
+                }
+            }
+        } catch (err) {
+            // 文件删除失败不影响消息删除流程
+            logger.warn('[deleteMessage] error deleting file:', (err as Error).message);
+        }
+    }
 
     if (ctx.socket.isAdmin) {
         await Message.deleteOne({ _id: messageId });

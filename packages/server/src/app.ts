@@ -24,6 +24,7 @@ import * as systemRoutes from './routes/system';
 import * as notificationRoutes from './routes/notification';
 import * as historyRoutes from './routes/history';
 import registerRoutes from './middlewares/registerRoutes';
+import uploadRouter from './routes/upload';
 
 const app = new Koa();
 app.proxy = true;
@@ -38,8 +39,30 @@ const io = new Server(httpServer, {
     pingInterval: 5000,
 });
 
-// serve index.html
+// HTTP 上传接口（支持进度）- 必须在返回 index.html 之前注册
+app.use(uploadRouter.routes()).use(uploadRouter.allowedMethods());
+
+// serve public static files - 必须在返回 HTML 之前，优先处理静态文件
+app.use(
+    koaStatic(path.join(__dirname, '../public'), {
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        gzip: true,
+    }),
+);
+
+// serve index.html - 作为 fallback，处理所有非静态文件和非 API 路由
 app.use(async (ctx, next) => {
+    // 排除 API 路由，避免返回 HTML
+    // API 路由由上传路由处理，如果没有匹配则返回 404（不返回 HTML）
+    if (ctx.request.url.startsWith('/api/')) {
+        await next();
+        return;
+    }
+    // 如果响应已经设置（静态文件已处理），直接返回
+    if (ctx.response.status !== 404) {
+        return;
+    }
+    // 非 API 路由，按原逻辑处理
     if (
         /\/invite\/group\/[\w\d]+/.test(ctx.request.url) ||
         !/(\.)|(\/invite\/group\/[\w\d]+)/.test(ctx.request.url)
@@ -53,14 +76,6 @@ app.use(async (ctx, next) => {
         await next();
     }
 });
-
-// serve public static files
-app.use(
-    koaStatic(path.join(__dirname, '../public'), {
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-        gzip: true,
-    }),
-);
 
 const routes: Routes = {
     ...userRoutes,

@@ -21,12 +21,9 @@ import {
     DisableNewUserSendMessageKey,
     DisableRegisterKey,
     DisableCreateGroupKey,
-<<<<<<< HEAD
     DisableDeleteMessageKey,
     getBannedUsernameKey,
     getAllBannedUsernames,
-=======
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     Redis,
 } from '@fiora/database/redis/initRedis';
 
@@ -364,14 +361,31 @@ export async function uploadFile(
         }
 
         const [directory, fileName] = ctx.data.fileName.split('/');
-        const filePath = path.resolve('__dirname', '../public', directory);
+        // 修复：使用实际的 __dirname 变量而不是字符串字面量
+        const filePath = path.resolve(__dirname, '../public', directory);
         const isExists = await promisify(fs.exists)(filePath);
         if (!isExists) {
-            await promisify(fs.mkdir)(filePath);
+            // 确保目录存在，使用 recursive 选项创建多级目录
+            await promisify(fs.mkdir)(filePath, { recursive: true });
+        }
+        // 处理文件数据：如果是 base64 字符串则转换，如果是数组（Uint8Array 转换后的）则转换为 Buffer，否则直接使用
+        let fileData: Buffer;
+        if (ctx.data.isBase64) {
+            // base64 字符串
+            fileData = Buffer.from(ctx.data.file, 'base64');
+        } else if (Array.isArray(ctx.data.file)) {
+            // 从客户端发送的数组（Uint8Array 转换后的普通数组）
+            fileData = Buffer.from(ctx.data.file);
+        } else if (Buffer.isBuffer(ctx.data.file)) {
+            // 已经是 Buffer
+            fileData = ctx.data.file;
+        } else {
+            // 其他情况，尝试转换为 Buffer
+            fileData = Buffer.from(ctx.data.file);
         }
         await promisify(fs.writeFile)(
             path.resolve(filePath, fileName),
-            ctx.data.file,
+            fileData,
         );
         return {
             url: `/${ctx.data.fileName}`,
@@ -405,29 +419,16 @@ export async function toggleNewUserSendMessage(
  * 获取系统配置, 需要管理员权限
  */
 export async function getSystemConfig() {
-<<<<<<< HEAD
     // 从Redis读取配置，如果不存在则从config读取默认值
     const disableSendMessage = (await Redis.get(DisableSendMessageKey)) === 'true';
     const disableNewUserSendMessage = (await Redis.get(DisableNewUserSendMessageKey)) === 'true';
-    const disableRegister = (await Redis.get(DisableRegisterKey)) === 'true' || config.disableRegister;
-    const disableCreateGroup = (await Redis.get(DisableCreateGroupKey)) === 'true' || config.disableCreateGroup;
+    const disableRegisterRedis = await Redis.get(DisableRegisterKey);
+    const disableCreateGroupRedis = await Redis.get(DisableCreateGroupKey);
     const disableDeleteMessage = (await Redis.get(DisableDeleteMessageKey)) === 'true';
     
     return {
         disableSendMessage,
         disableNewUserSendMessage,
-        disableRegister,
-        disableCreateGroup,
-        disableDeleteMessage,
-=======
-    // 从 Redis 读取配置，如果不存在则从环境变量读取
-    const disableRegisterRedis = await Redis.get(DisableRegisterKey);
-    const disableCreateGroupRedis = await Redis.get(DisableCreateGroupKey);
-    
-    return {
-        disableSendMessage: (await Redis.get(DisableSendMessageKey)) === 'true',
-        disableNewUserSendMessage:
-            (await Redis.get(DisableNewUserSendMessageKey)) === 'true',
         disableRegister:
             disableRegisterRedis !== null
                 ? disableRegisterRedis === 'true'
@@ -436,12 +437,11 @@ export async function getSystemConfig() {
             disableCreateGroupRedis !== null
                 ? disableCreateGroupRedis === 'true'
                 : config.disableCreateGroup,
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
+        disableDeleteMessage,
     };
 }
 
 /**
-<<<<<<< HEAD
  * 更新系统配置, 需要管理员权限
  * @param ctx Context
  */
@@ -471,20 +471,23 @@ export async function updateSystemConfig(ctx: Context<{
         await Redis.set(DisableDeleteMessageKey, disableDeleteMessage.toString());
     }
     
-=======
- * 切换注册功能开关，需要管理员权限
- */
-export async function toggleRegister(ctx: Context<{ enable: boolean }>) {
-    const { enable } = ctx.data;
-    await Redis.set(DisableRegisterKey, (!enable).toString());
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     return {
         msg: 'ok',
     };
 }
 
 /**
-<<<<<<< HEAD
+ * 切换注册功能开关，需要管理员权限
+ */
+export async function toggleRegister(ctx: Context<{ enable: boolean }>) {
+    const { enable } = ctx.data;
+    await Redis.set(DisableRegisterKey, (!enable).toString());
+    return {
+        msg: 'ok',
+    };
+}
+
+/**
  * 封禁用户名（禁止使用该用户名注册）, 需要管理员权限
  * @param ctx Context
  */
@@ -498,20 +501,23 @@ export async function banUsername(ctx: Context<{ username: string }>) {
     // 永久封禁，不设置过期时间
     await Redis.set(getBannedUsernameKey(username), username, Infinity);
     
-=======
- * 切换创建群组功能开关，需要管理员权限
- */
-export async function toggleCreateGroup(ctx: Context<{ enable: boolean }>) {
-    const { enable } = ctx.data;
-    await Redis.set(DisableCreateGroupKey, (!enable).toString());
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     return {
         msg: 'ok',
     };
 }
 
 /**
-<<<<<<< HEAD
+ * 切换创建群组功能开关，需要管理员权限
+ */
+export async function toggleCreateGroup(ctx: Context<{ enable: boolean }>) {
+    const { enable } = ctx.data;
+    await Redis.set(DisableCreateGroupKey, (!enable).toString());
+    return {
+        msg: 'ok',
+    };
+}
+
+/**
  * 解禁用户名, 需要管理员权限
  * @param ctx Context
  */
@@ -547,7 +553,9 @@ export async function getBannedUsernameList(ctx: Context<any>) {
         logger.error('[getBannedUsernameList]', '错误:', err);
         throw err;
     }
-=======
+}
+
+/**
  * 获取所有在线用户列表，需要管理员权限
  */
 export async function getAllOnlineUsers() {
@@ -583,5 +591,4 @@ export async function getAllOnlineUsers() {
     });
 
     return Array.from(userMap.values());
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 }

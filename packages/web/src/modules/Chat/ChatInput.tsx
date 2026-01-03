@@ -11,6 +11,7 @@ import fetch from '../../utils/fetch';
 import voice from '../../utils/voice';
 import readDiskFile, { ReadFileResult } from '../../utils/readDiskFile';
 import uploadFile from '../../utils/uploadFile';
+import uploadFileWithProgress from '../../utils/uploadFileWithProgress';
 import getRandomHuaji from '../../utils/getRandomHuaji';
 import Style from './ChatInput.less';
 import useIsLogin from '../../hooks/useIsLogin';
@@ -231,29 +232,60 @@ function ChatInput() {
         // @ts-ignore
         const ext = image.type.split('/').pop().toLowerCase();
         const url = URL.createObjectURL(image.result);
+        let messageId: string | null = null;
 
         const img = new Image();
+        
+        // 处理图片加载失败
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            if (messageId) {
+                // 如果消息已创建，删除它
+                action.deleteMessage(focus, messageId, true);
+            }
+            Message.error('图片加载失败，请重试');
+        };
+        
         img.onload = async () => {
-            const id = addSelfMessage(
-                'image',
-                `${url}?width=${img.width}&height=${img.height}`,
-            );
             try {
-                const imageUrl = await uploadFile(
+                messageId = addSelfMessage(
+                    'image',
+                    `${url}?width=${img.width}&height=${img.height}`,
+                );
+                
+                // 使用支持进度的上传函数
+                const imageUrl = await uploadFileWithProgress(
                     image.result as Blob,
                     `ImageMessage/${selfId}_${Date.now()}.${ext}`,
+                    (progress) => {
+                        // 更新上传进度
+                        action.updateMessage(focus, messageId!, {
+                            percent: progress,
+                        });
+                    },
                 );
+                
+                // 上传成功后释放 blob URL
+                URL.revokeObjectURL(url);
+                
                 handleSendMessage(
-                    id,
+                    messageId,
                     'image',
                     `${imageUrl}?width=${img.width}&height=${img.height}`,
                     focus,
                 );
             } catch (err) {
                 console.error(err);
+                // 释放 blob URL
+                URL.revokeObjectURL(url);
+                // 如果消息已创建，删除它
+                if (messageId) {
+                    action.deleteMessage(focus, messageId, true);
+                }
                 Message.error('上传图片失败');
             }
         };
+        
         img.src = url;
     }
 
@@ -272,9 +304,16 @@ function ChatInput() {
             }),
         );
         try {
-            const fileUrl = await uploadFile(
+            // 使用支持进度的上传函数
+            const fileUrl = await uploadFileWithProgress(
                 file.result as Blob,
                 `FileMessage/${selfId}_${Date.now()}.${file.ext}`,
+                (progress) => {
+                    // 更新上传进度
+                    action.updateMessage(focus, id, {
+                        percent: progress,
+                    });
+                },
             );
             handleSendMessage(
                 id,
@@ -289,6 +328,8 @@ function ChatInput() {
             );
         } catch (err) {
             console.error(err);
+            // 上传失败时删除消息
+            action.deleteMessage(focus, id, true);
             Message.error('上传文件失败');
         }
     }

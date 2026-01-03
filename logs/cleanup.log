@@ -1,0 +1,7 @@
+[cleanupOldMessages] Starting cleanup...
+[cleanupOldMessages] Text messages older than 2025-10-05T11:16:57.017Z will be deleted
+[cleanupOldMessages] File messages older than 2025-12-27T11:16:57.017Z will be deleted
+[cleanupOldMessages] Found 0 file messages to delete
+[cleanupOldMessages] Deleted 0 file messages
+[cleanupOldMessages] Deleted 0 text messages
+[cleanupOldMessages] Cleanup completed. Deleted 0 file messages, 0 text messages, 0 files, freed 0.00MB

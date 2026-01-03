@@ -19,9 +19,11 @@ import { isiOS } from '../../utils/platform';
 import expressions from '../../utils/expressions';
 
 import Expression from '../../components/Expression';
+import Toast from '../../components/Toast';
 import { useIsLogin, useStore, useUser } from '../../hooks/useStore';
 import { Message } from '../../types/redux';
 import uploadFile from '../../utils/uploadFile';
+import uploadFileWithProgress from '../../utils/uploadFileWithProgress';
 
 const { width: ScreenWidth } = Dimensions.get('window');
 const ExpressionSize = (ScreenWidth - 16) / 10;
@@ -149,16 +151,29 @@ export default function Input({ onHeightChange }: Props) {
                 `${result.uri}?width=${result.width}&height=${result.height}`,
             );
             const key = `ImageMessage/${user._id}_${Date.now()}`;
-            const imageUrl = await uploadFile(
-                result.base64 as string,
-                key,
-                true,
-            );
-            sendMessage(
-                id,
-                'image',
-                `${imageUrl}?width=${result.width}&height=${result.height}`,
-            );
+            try {
+                // 使用支持进度的上传函数
+                const imageUrl = await uploadFileWithProgress(
+                    result.base64 as string,
+                    key,
+                    (progress) => {
+                        // 更新上传进度
+                        action.updateSelfMessage(focus, id, {
+                            percent: progress,
+                        });
+                    },
+                );
+                sendMessage(
+                    id,
+                    'image',
+                    `${imageUrl}?width=${result.width}&height=${result.height}`,
+                );
+            } catch (err) {
+                console.error(err);
+                // 上传失败时删除消息
+                action.deleteLinkmanMessage(focus, id);
+                Toast.danger('上传图片失败');
+            }
         }
     }
 
@@ -186,16 +201,29 @@ export default function Input({ onHeightChange }: Props) {
                 `${result.uri}?width=${result.width}&height=${result.height}`,
             );
             const key = `ImageMessage/${user._id}_${Date.now()}`;
-            const imageUrl = await uploadFile(
-                result.base64 as string,
-                key,
-                true,
-            );
-            sendMessage(
-                id,
-                'image',
-                `${imageUrl}?width=${result.width}&height=${result.height}`,
-            );
+            try {
+                // 使用支持进度的上传函数
+                const imageUrl = await uploadFileWithProgress(
+                    result.base64 as string,
+                    key,
+                    (progress) => {
+                        // 更新上传进度
+                        action.updateSelfMessage(focus, id, {
+                            percent: progress,
+                        });
+                    },
+                );
+                sendMessage(
+                    id,
+                    'image',
+                    `${imageUrl}?width=${result.width}&height=${result.height}`,
+                );
+            } catch (err) {
+                console.error(err);
+                // 上传失败时删除消息
+                action.deleteLinkmanMessage(focus, id);
+                Toast.danger('上传图片失败');
+            }
         }
     }
 

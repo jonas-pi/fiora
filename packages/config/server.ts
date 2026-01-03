@@ -43,6 +43,11 @@ export default {
         ? env.DisableCreateGroup === 'true'
         : false,
 
+    /** 文件大小限制（字节） */
+    maxFileSize: env.MaxFileSize
+        ? parseInt(env.MaxFileSize, 10)
+        : 20 * 1024 * 1024, // 20MB（原 10MB）
+
     /** Aliyun OSS */
     aliyunOSS: {
         enable: env.ALIYUN_OSS ? env.ALIYUN_OSS === 'true' : false,

@@ -1,0 +1,116 @@
+[2026-01-03T19:02:07.855] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:02:08.703] [INFO] default - [loginByToken] 68 iiNnZaBqq7IRW-MQAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:08.932] [INFO] default - [getLinkmansLastMessagesV2] 64 iiNnZaBqq7IRW-MQAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:10.603] [INFO] default - [getSTS] 0 pgTpmToVkVsUk-3mAAAD null null
+[2026-01-03T19:02:10.953] [INFO] default - [loginByToken] 20 pgTpmToVkVsUk-3mAAAD 6957ce0e13f5c50c8f7c6566 null
+[2026-01-03T19:02:11.474] [INFO] default - [getLinkmansLastMessagesV2] 17 pgTpmToVkVsUk-3mAAAD 6957ce0e13f5c50c8f7c6566 null
+[2026-01-03T19:02:25.930] [INFO] default - [updateHistory] 14 iiNnZaBqq7IRW-MQAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:26.145] [INFO] default - [getGroupOnlineMembers] 13 iiNnZaBqq7IRW-MQAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:31.170] [INFO] default - [upload] request data: {
+  hasFiles: true,
+  filesKeys: [],
+  bodyKeys: [ 'file', 'fileName', 'isBase64' ],
+  fileName: 'ImageMessage/6958e777742f2eebab352000_1767438149558',
+  isBase64: true,
+  fileType: 'null'
+}
+[2026-01-03T19:02:31.172] [INFO] default - [upload] base64 request: {
+  hasFile: true,
+  fileType: 'string',
+  fileLength: 1255760,
+  fileName: 'ImageMessage/6958e777742f2eebab352000_1767438149558',
+  firstChars: '/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQ'
+}
+[2026-01-03T19:02:31.180] [INFO] default - [upload] base64 validated, length: 1255760
+[2026-01-03T19:02:31.185] [INFO] default - [upload] base64 decoded, buffer length: 941820
+[2026-01-03T19:02:31.187] [INFO] default - [upload] file saved: /opt/fiora/packages/server/src/public/ImageMessage/6958e777742f2eebab352000_1767438149558 size: 941820
+[2026-01-03T19:02:31.404] [INFO] default - [updateHistory] 13 iiNnZaBqq7IRW-MQAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:31.414] [INFO] default - [sendMessage] 20 iiNnZaBqq7IRW-MQAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:36.703] [INFO] default - [upload] request data: {
+  hasFiles: true,
+  filesKeys: [],
+  bodyKeys: [ 'file', 'fileName', 'isBase64' ],
+  fileName: 'ImageMessage/6958e777742f2eebab352000_1767438156695',
+  isBase64: true,
+  fileType: 'null'
+}
+[2026-01-03T19:02:36.705] [INFO] default - [upload] base64 request: {
+  hasFile: true,
+  fileType: 'string',
+  fileLength: 1255760,
+  fileName: 'ImageMessage/6958e777742f2eebab352000_1767438156695',
+  firstChars: '/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQ'
+}
+[2026-01-03T19:02:36.711] [INFO] default - [upload] base64 validated, length: 1255760
+[2026-01-03T19:02:36.714] [INFO] default - [upload] base64 decoded, buffer length: 941820
+[2026-01-03T19:02:36.716] [INFO] default - [upload] file saved: /opt/fiora/packages/server/src/public/ImageMessage/6958e777742f2eebab352000_1767438156695 size: 941820
+[2026-01-03T19:02:36.886] [INFO] default - [sendMessage] 11 iiNnZaBqq7IRW-MQAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:48.688] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:02:53.082] [INFO] default - [getSTS] 1 4AHBGbPTIVFH8MIfAAAB null null
+[2026-01-03T19:02:53.202] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:02:54.028] [INFO] default - [loginByToken] 47 MZEePOYCQP6UPKXsAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:02:54.345] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:02:55.487] [INFO] default - [getSTS] 1 MNX4MrLGyn_hnFIbAAAB null null
+[2026-01-03T19:02:57.556] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:02:58.555] [INFO] default - [upload] request data: {
+  hasFiles: true,
+  filesKeys: [],
+  bodyKeys: [ 'file', 'fileName', 'isBase64' ],
+  fileName: 'ImageMessage/6958e777742f2eebab352000_1767438178045',
+  isBase64: true,
+  fileType: 'null'
+}
+[2026-01-03T19:03:01.783] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:04.450] [INFO] default - [loginByToken] 69 ihCXqFevGQQ77OpBAAAC 6958e777742f2eebab352000 null
+[2026-01-03T19:03:05.670] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:06.246] [INFO] default - [getSTS] 1 RiylUKRmvHsCZfrfAAAB null null
+[2026-01-03T19:03:09.339] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:13.137] [INFO] default - [getSTS] 0 pvWGbqLsq6XamQNfAAAB null null
+[2026-01-03T19:03:13.219] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:14.715] [INFO] default - [loginByToken] 36 iNzZ5gMT3itYUDPfAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:03:17.099] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:17.672] [INFO] default - [getSTS] 1 Pj73ukgHYtKbw74fAAAB null null
+[2026-01-03T19:03:21.251] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:21.980] [INFO] default - [getSTS] 1 zXSurhFl4a0IqEOAAAAB null null
+[2026-01-03T19:03:25.187] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:25.972] [INFO] default - [loginByToken] 46 2YExuzd1szeJXTTiAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:03:28.909] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:30.813] [INFO] default - [getSTS] 0 EBwPR5UcEpksgYHvAAAB null null
+[2026-01-03T19:03:32.652] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:33.939] [INFO] default - [getSTS] 0 nonboG8QlzdWIow4AAAB null null
+[2026-01-03T19:03:36.372] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:37.299] [INFO] default - [getSTS] 1 7KLiIrP0awU3HnvHAAAB null null
+[2026-01-03T19:03:40.008] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:40.860] [INFO] default - [loginByToken] 53 VO8VOm5LUl2jl_-dAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:03:43.936] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:45.284] [INFO] default - [loginByToken] 43 chBQf4e53_Ml39r1AAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:03:47.765] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:49.609] [INFO] default - [loginByToken] 46 CVhWARXSg-ak0ihiAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:03:51.669] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:52.444] [INFO] default - [getSTS] 0 cxGIE2JWt25iJGNQAAAB null null
+[2026-01-03T19:03:55.552] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:56.548] [INFO] default - [getSTS] 0 gNlYpikNn8FNyR95AAAB null null
+[2026-01-03T19:03:59.243] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:03:59.739] [INFO] default - [getSTS] 0 T2MTqA3Ddcd7UCdAAAAB null null
+[2026-01-03T19:04:04.273] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:05.455] [INFO] default - [getSTS] 2 8r98TOvoLG8Y48MsAAAB null null
+[2026-01-03T19:04:08.250] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:09.946] [INFO] default - [loginByToken] 84 C13J7viOCceFSknUAAAB 6958e777742f2eebab352000 null
+[2026-01-03T19:04:12.400] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:13.473] [INFO] default - [getSTS] 0 Xd3DkVdR9JnBW_g6AAAB null null
+[2026-01-03T19:04:24.771] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:26.558] [INFO] default - [getSTS] 0 9sAf1b-T54_Xdl0NAAAB null null
+[2026-01-03T19:04:29.228] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:31.415] [INFO] default - [getSTS] 1 nkc6joLibR-VY4FiAAAB null null
+[2026-01-03T19:04:34.031] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:36.146] [INFO] default - [getSTS] 1 R00PddyUHwSX_CLEAAAB null null
+[2026-01-03T19:04:37.813] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:38.459] [INFO] default - [getSTS] 0 hhT1oI8Z-12VACK1AAAB null null
+[2026-01-03T19:04:41.525] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:43.481] [INFO] default - [getSTS] 1 gef5htGv7L79afXRAAAB null null
+[2026-01-03T19:04:45.766] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:48.483] [INFO] default - [getSTS] 1 OUVsnbbWvWq__fyEAAAB null null
+[2026-01-03T19:04:50.031] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:51.484] [INFO] default - [getSTS] 0 jyWic7gim0NTHBT6AAAB null null
+[2026-01-03T19:04:53.798] [INFO] default - >>> server listen on http://localhost:9200
+[2026-01-03T19:04:54.198] [INFO] default - [loginByToken] 36 CXDNaldZ94rRMphKAAAB 6958e777742f2eebab352000 null

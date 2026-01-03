@@ -20,14 +20,11 @@ import {
     toggleRegister,
     toggleCreateGroup,
     getSystemConfig,
-<<<<<<< HEAD
     updateSystemConfig,
     banUsername,
     unbanUsername,
     getBannedUsernameList,
-=======
     getAllOnlineUsers,
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 } from '../../service';
 
 const styles = {
@@ -63,10 +60,7 @@ type SystemConfig = {
     disableNewUserSendMessage: boolean;
     disableRegister: boolean;
     disableCreateGroup: boolean;
-<<<<<<< HEAD
     disableDeleteMessage: boolean;
-=======
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 };
 
 interface AdminProps {
@@ -86,10 +80,8 @@ function Admin(props: AdminProps) {
     const [sealList, setSealList] = useState({ users: [], ips: [] });
     const [sealIpAddress, setSealIpAddress] = useState('');
     const [systemConfig, setSystemConfig] = useState<SystemConfig>();
-<<<<<<< HEAD
     const [bannedUsername, setBannedUsername] = useState('');
     const [bannedUsernameList, setBannedUsernameList] = useState<string[]>([]);
-=======
     const [onlineUsers, setOnlineUsers] = useState<
         Array<{
             userId: string;
@@ -100,7 +92,6 @@ function Admin(props: AdminProps) {
             browser: string;
         }>
     >([]);
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 
     async function handleGetSealList() {
         const sealListRes = await getSealList();
@@ -114,36 +105,29 @@ function Admin(props: AdminProps) {
             setSystemConfig(systemConfigRes);
         }
     }
-<<<<<<< HEAD
     async function handleGetBannedUsernameList() {
         const res = await getBannedUsernameList();
         if (res && res.usernames) {
             setBannedUsernameList(res.usernames);
         }
     }
-
-=======
     async function handleGetOnlineUsers() {
         const users = await getAllOnlineUsers();
         if (users) {
             setOnlineUsers(users);
         }
     }
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     useEffect(() => {
         if (visible) {
             handleGetSystemConfig();
             handleGetSealList();
-<<<<<<< HEAD
             handleGetBannedUsernameList();
-=======
             handleGetOnlineUsers();
             // 每 5 秒刷新一次在线用户列表
             const interval = setInterval(() => {
                 handleGetOnlineUsers();
             }, 5000);
             return () => clearInterval(interval);
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
         }
     }, [visible]);
 
@@ -271,7 +255,6 @@ function Admin(props: AdminProps) {
         <Dialog className={Style.admin} visible={visible} title="管理员控制台" onClose={onClose}>
             <div className={Common.container}>
                 <div className={Common.block}>
-<<<<<<< HEAD
                     <p className={Common.title}>全局开关</p>
                     {/* 全局禁言按钮：显示当前状态，点击切换 */}
                     <Button 
@@ -281,18 +264,10 @@ function Admin(props: AdminProps) {
                             if (systemConfig === undefined) return;
                             const currentValue = systemConfig.disableSendMessage;
                             const newValue = !currentValue;
-                            console.log('[全局禁言] 当前值:', currentValue, '新值:', newValue);
                             const isSuccess = await updateSystemConfig({ disableSendMessage: newValue });
                             if (isSuccess) {
                                 Message.success(newValue ? '已开启全局禁言' : '已关闭全局禁言');
-                                // 立即更新本地状态
-                                setSystemConfig(prev => {
-                                    if (!prev) return prev;
-                                    const updated = { ...prev, disableSendMessage: newValue };
-                                    console.log('[全局禁言] 更新后的状态:', updated);
-                                    return updated;
-                                });
-                                // 延迟一点再从服务器获取，确保状态已更新
+                                setSystemConfig(prev => prev ? { ...prev, disableSendMessage: newValue } : prev);
                                 setTimeout(() => {
                                     handleGetSystemConfig();
                                 }, 100);
@@ -391,74 +366,6 @@ function Admin(props: AdminProps) {
                     >
                         {systemConfig?.disableDeleteMessage ? '撤回消息 [已禁止]' : '撤回消息 [已允许]'}
                     </Button>
-=======
-                    {!systemConfig?.disableSendMessage ? (
-                        <Button
-                            className={styles.button}
-                            type="danger"
-                            onClick={handleDisableSendMessage}
-                        >
-                            开启禁言
-                        </Button>
-                    ) : (
-                        <Button
-                            className={styles.button}
-                            onClick={handleEnableSendMessage}
-                        >
-                            关闭禁言
-                        </Button>
-                    )}
-                    {!systemConfig?.disableNewUserSendMessage ? (
-                        <Button
-                            className={styles.button}
-                            type="danger"
-                            onClick={handleDisableSNewUserendMessage}
-                        >
-                            开启新用户禁言
-                        </Button>
-                    ) : (
-                        <Button
-                            className={styles.button}
-                            onClick={handleEnableNewUserSendMessage}
-                        >
-                            关闭新用户禁言
-                        </Button>
-                    )}
-                </div>
-                <div className={Common.block}>
-                    <p className={Common.title}>系统配置</p>
-                    {!systemConfig?.disableRegister ? (
-                        <Button
-                            className={styles.button}
-                            type="danger"
-                            onClick={handleDisableRegister}
-                        >
-                            禁用注册
-                        </Button>
-                    ) : (
-                        <Button
-                            className={styles.button}
-                            onClick={handleEnableRegister}
-                        >
-                            启用注册
-                        </Button>
-                    )}
-                    {!systemConfig?.disableCreateGroup ? (
-                        <Button
-                            className={styles.button}
-                            type="danger"
-                            onClick={handleDisableCreateGroup}
-                        >
-                            禁用创建群组
-                        </Button>
-                    ) : (
-                        <Button
-                            className={styles.button}
-                            onClick={handleEnableCreateGroup}
-                        >
-                            启用创建群组
-                        </Button>
-                    )}
                 </div>
                 <div className={Common.block}>
                     <p className={Common.title}>在线用户 ({onlineUsers.length})</p>
@@ -533,12 +440,14 @@ function Admin(props: AdminProps) {
                         />
                         <Button
                             className={Style.button}
-                            onClick={handleResetPassword}
+                            onClick={async () => {
+                                const res = await resetUserPassword(resetPasswordUsername);
+                                if (res) Message.success(`新密码:${res.newPassword}`);
+                            }}
                         >
-                            确定
+                            重置密码
                         </Button>
                     </div>
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
                 </div>
 
                 <div className={Common.block}>

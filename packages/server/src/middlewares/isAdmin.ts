@@ -22,15 +22,12 @@ export default function isAdmin(socket: Socket) {
         'toggleRegister',
         'toggleCreateGroup',
         'getSystemConfig',
-<<<<<<< HEAD
         'updateSystemConfig',
         'banUsername',
         'unbanUsername',
         'getBannedUsernameList',
         'deleteUser',
-=======
         'getAllOnlineUsers',
->>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     ]);
     return async ([event, , cb]: MiddlewareArgs, next: MiddlewareNext) => {
         socket.data.isAdmin =
