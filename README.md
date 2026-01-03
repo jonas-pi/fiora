@@ -38,6 +38,55 @@ Fiora provides two ways to install
 - [Install by source code](https://yinxin630.github.io/fiora/docs/install#how-to-run)
 - [Install by docker](https://yinxin630.github.io/fiora/docs/install#running-on-the-docker)
 
+## Configuration
+
+Fiora supports configuration through environment variables. Create a `.env` file in the project root directory to configure the following options:
+
+### Server Configuration
+
+- `Host` - Server host address (default: local IP address)
+- `Port` - Server port (default: 9200)
+- `Database` - MongoDB connection string (default: mongodb://localhost:27017/fiora)
+- `RedisHost` - Redis host (default: localhost)
+- `RedisPort` - Redis port (default: 6379)
+- `JwtSecret` - JWT encryption secret (default: jwtSecret)
+- `MaxGroupCount` - Maximum number of groups per user (default: 3)
+- `AllowOrigin` - Allowed CORS origins (comma-separated)
+- `TokenExpiresTime` - Token expiration time in milliseconds (default: 30 days)
+- `Administrator` - Administrator user IDs (comma-separated)
+- `DisableRegister` - Disable user registration (default: false)
+- `DisableCreateGroup` - Disable user group creation (default: false)
+- `MaxFileSize` - Maximum file upload size in bytes (default: 20MB)
+
+### Client Configuration
+
+- `Server` - Server URL for client connection
+- `MaxImageSize` - Maximum image upload size in bytes (default: 10MB)
+- `MaxBackgroundImageSize` - Maximum background image size in bytes (default: 10MB)
+- `MaxAvatarSize` - Maximum avatar size in bytes (default: 3MB)
+- `MaxFileSize` - Maximum file upload size in bytes (default: 20MB)
+- `DefaultTheme` - Default theme (default: cool)
+- `Sound` - Default notification sound (default: default)
+- `TagColorMode` - Tag color mode (default: fixedColor)
+- `FrontendMonitorAppId` - Frontend monitoring app ID
+- `DisableDeleteMessage` - Disable message deletion for users (default: false)
+- `AndroidDownloadUrl` - Android APK download URL for QR code (recommended: set to public domain to ensure mobile devices can download)
+
+### Example `.env` file
+
+```bash
+# Server Configuration
+Port=9200
+Database=mongodb://localhost:27017/fiora
+JwtSecret=your-secret-key
+Administrator=your-user-id
+
+# Client Configuration
+MaxImageSize=10485760
+MaxFileSize=20971520
+AndroidDownloadUrl=https://your-domain.com/fiora.apk
+```
+
 ## Change Log
 
 You can find the Fiora changelog [on the website](https://yinxin630.github.io/fiora/docs/changelog)
