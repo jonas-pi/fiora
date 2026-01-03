@@ -79,6 +79,15 @@ program
         exec(`npx ts-node --transpile-only packages/bin/index.ts doctor`);
     });
 
+program
+    .command('setAdmin <usernameOrId>')
+    .description(i18n('setAdminDescription'))
+    .action((usernameOrId: string) => {
+        exec(
+            `npx ts-node --transpile-only packages/bin/index.ts setAdmin ${usernameOrId}`,
+        );
+    });
+
 program.usage('[command]');
 
 program.parse(process.argv);

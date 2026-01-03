@@ -21,9 +21,12 @@ import {
     DisableNewUserSendMessageKey,
     DisableRegisterKey,
     DisableCreateGroupKey,
+<<<<<<< HEAD
     DisableDeleteMessageKey,
     getBannedUsernameKey,
     getAllBannedUsernames,
+=======
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     Redis,
 } from '@fiora/database/redis/initRedis';
 
@@ -402,6 +405,7 @@ export async function toggleNewUserSendMessage(
  * 获取系统配置, 需要管理员权限
  */
 export async function getSystemConfig() {
+<<<<<<< HEAD
     // 从Redis读取配置，如果不存在则从config读取默认值
     const disableSendMessage = (await Redis.get(DisableSendMessageKey)) === 'true';
     const disableNewUserSendMessage = (await Redis.get(DisableNewUserSendMessageKey)) === 'true';
@@ -415,10 +419,29 @@ export async function getSystemConfig() {
         disableRegister,
         disableCreateGroup,
         disableDeleteMessage,
+=======
+    // 从 Redis 读取配置，如果不存在则从环境变量读取
+    const disableRegisterRedis = await Redis.get(DisableRegisterKey);
+    const disableCreateGroupRedis = await Redis.get(DisableCreateGroupKey);
+    
+    return {
+        disableSendMessage: (await Redis.get(DisableSendMessageKey)) === 'true',
+        disableNewUserSendMessage:
+            (await Redis.get(DisableNewUserSendMessageKey)) === 'true',
+        disableRegister:
+            disableRegisterRedis !== null
+                ? disableRegisterRedis === 'true'
+                : config.disableRegister,
+        disableCreateGroup:
+            disableCreateGroupRedis !== null
+                ? disableCreateGroupRedis === 'true'
+                : config.disableCreateGroup,
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     };
 }
 
 /**
+<<<<<<< HEAD
  * 更新系统配置, 需要管理员权限
  * @param ctx Context
  */
@@ -448,12 +471,20 @@ export async function updateSystemConfig(ctx: Context<{
         await Redis.set(DisableDeleteMessageKey, disableDeleteMessage.toString());
     }
     
+=======
+ * 切换注册功能开关，需要管理员权限
+ */
+export async function toggleRegister(ctx: Context<{ enable: boolean }>) {
+    const { enable } = ctx.data;
+    await Redis.set(DisableRegisterKey, (!enable).toString());
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     return {
         msg: 'ok',
     };
 }
 
 /**
+<<<<<<< HEAD
  * 封禁用户名（禁止使用该用户名注册）, 需要管理员权限
  * @param ctx Context
  */
@@ -467,12 +498,20 @@ export async function banUsername(ctx: Context<{ username: string }>) {
     // 永久封禁，不设置过期时间
     await Redis.set(getBannedUsernameKey(username), username, Infinity);
     
+=======
+ * 切换创建群组功能开关，需要管理员权限
+ */
+export async function toggleCreateGroup(ctx: Context<{ enable: boolean }>) {
+    const { enable } = ctx.data;
+    await Redis.set(DisableCreateGroupKey, (!enable).toString());
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     return {
         msg: 'ok',
     };
 }
 
 /**
+<<<<<<< HEAD
  * 解禁用户名, 需要管理员权限
  * @param ctx Context
  */
@@ -508,4 +547,41 @@ export async function getBannedUsernameList(ctx: Context<any>) {
         logger.error('[getBannedUsernameList]', '错误:', err);
         throw err;
     }
+=======
+ * 获取所有在线用户列表，需要管理员权限
+ */
+export async function getAllOnlineUsers() {
+    // 获取所有有用户的 socket 连接
+    const sockets = await Socket.find(
+        {
+            user: { $exists: true, $ne: null },
+        },
+        {
+            user: 1,
+            ip: 1,
+            os: 1,
+            browser: 1,
+        },
+    ).populate('user', { username: 1, avatar: 1, _id: 1 });
+
+    // 去重，每个用户只保留一个记录
+    const userMap = new Map();
+    sockets.forEach((socket) => {
+        if (socket.user && typeof socket.user === 'object') {
+            const userId = socket.user._id.toString();
+            if (!userMap.has(userId)) {
+                userMap.set(userId, {
+                    userId,
+                    username: socket.user.username,
+                    avatar: socket.user.avatar,
+                    ip: socket.ip,
+                    os: socket.os || '未知',
+                    browser: socket.browser || '未知',
+                });
+            }
+        }
+    });
+
+    return Array.from(userMap.values());
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 }

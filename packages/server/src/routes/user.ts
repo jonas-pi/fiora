@@ -23,6 +23,7 @@ import {
     getBannedUsernameKey,
     DisableRegisterKey,
     Redis,
+    DisableRegisterKey,
 } from '@fiora/database/redis/initRedis';
 
 const { isValid } = Types.ObjectId;
@@ -90,10 +91,21 @@ async function getUserNotificationTokens(user: UserDocument) {
 export async function register(
     ctx: Context<{ username: string; password: string } & Environment>,
 ) {
+<<<<<<< HEAD
     // 检查Redis中的配置，如果Redis中没有则使用config中的默认值
     const redisDisableRegister = (await Redis.get(DisableRegisterKey)) === 'true';
     const isRegisterDisabled = redisDisableRegister || config.disableRegister;
     assert(!isRegisterDisabled, '注册功能已被禁用, 请联系管理员开通账号');
+=======
+    // 从 Redis 读取配置，如果不存在则从环境变量读取
+    const disableRegisterRedis = await Redis.get(DisableRegisterKey);
+    const disableRegister =
+        disableRegisterRedis !== null
+            ? disableRegisterRedis === 'true'
+            : config.disableRegister;
+    
+    assert(!disableRegister, '注册功能已被禁用, 请联系管理员开通账号');
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 
     const { username, password, os, browser, environment } = ctx.data;
     assert(username, '用户名不能为空');

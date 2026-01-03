@@ -17,11 +17,17 @@ import {
     cancelSealIp,
     toggleSendMessage,
     toggleNewUserSendMessage,
+    toggleRegister,
+    toggleCreateGroup,
     getSystemConfig,
+<<<<<<< HEAD
     updateSystemConfig,
     banUsername,
     unbanUsername,
     getBannedUsernameList,
+=======
+    getAllOnlineUsers,
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 } from '../../service';
 
 const styles = {
@@ -57,7 +63,10 @@ type SystemConfig = {
     disableNewUserSendMessage: boolean;
     disableRegister: boolean;
     disableCreateGroup: boolean;
+<<<<<<< HEAD
     disableDeleteMessage: boolean;
+=======
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 };
 
 interface AdminProps {
@@ -77,8 +86,21 @@ function Admin(props: AdminProps) {
     const [sealList, setSealList] = useState({ users: [], ips: [] });
     const [sealIpAddress, setSealIpAddress] = useState('');
     const [systemConfig, setSystemConfig] = useState<SystemConfig>();
+<<<<<<< HEAD
     const [bannedUsername, setBannedUsername] = useState('');
     const [bannedUsernameList, setBannedUsernameList] = useState<string[]>([]);
+=======
+    const [onlineUsers, setOnlineUsers] = useState<
+        Array<{
+            userId: string;
+            username: string;
+            avatar: string;
+            ip: string;
+            os: string;
+            browser: string;
+        }>
+    >([]);
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 
     async function handleGetSealList() {
         const sealListRes = await getSealList();
@@ -92,6 +114,7 @@ function Admin(props: AdminProps) {
             setSystemConfig(systemConfigRes);
         }
     }
+<<<<<<< HEAD
     async function handleGetBannedUsernameList() {
         const res = await getBannedUsernameList();
         if (res && res.usernames) {
@@ -99,11 +122,28 @@ function Admin(props: AdminProps) {
         }
     }
 
+=======
+    async function handleGetOnlineUsers() {
+        const users = await getAllOnlineUsers();
+        if (users) {
+            setOnlineUsers(users);
+        }
+    }
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
     useEffect(() => {
         if (visible) {
             handleGetSystemConfig();
             handleGetSealList();
+<<<<<<< HEAD
             handleGetBannedUsernameList();
+=======
+            handleGetOnlineUsers();
+            // 每 5 秒刷新一次在线用户列表
+            const interval = setInterval(() => {
+                handleGetOnlineUsers();
+            }, 5000);
+            return () => clearInterval(interval);
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
         }
     }, [visible]);
 
@@ -189,10 +229,49 @@ function Admin(props: AdminProps) {
         }
     }
 
+    /**
+     * 处理切换注册功能
+     */
+    async function handleDisableRegister() {
+        const isSuccess = await toggleRegister(false);
+        if (isSuccess) {
+            Message.success('已禁用注册功能');
+            handleGetSystemConfig();
+        }
+    }
+
+    async function handleEnableRegister() {
+        const isSuccess = await toggleRegister(true);
+        if (isSuccess) {
+            Message.success('已启用注册功能');
+            handleGetSystemConfig();
+        }
+    }
+
+    /**
+     * 处理切换创建群组功能
+     */
+    async function handleDisableCreateGroup() {
+        const isSuccess = await toggleCreateGroup(false);
+        if (isSuccess) {
+            Message.success('已禁用创建群组功能');
+            handleGetSystemConfig();
+        }
+    }
+
+    async function handleEnableCreateGroup() {
+        const isSuccess = await toggleCreateGroup(true);
+        if (isSuccess) {
+            Message.success('已启用创建群组功能');
+            handleGetSystemConfig();
+        }
+    }
+
     return (
         <Dialog className={Style.admin} visible={visible} title="管理员控制台" onClose={onClose}>
             <div className={Common.container}>
                 <div className={Common.block}>
+<<<<<<< HEAD
                     <p className={Common.title}>全局开关</p>
                     {/* 全局禁言按钮：显示当前状态，点击切换 */}
                     <Button 
@@ -312,6 +391,154 @@ function Admin(props: AdminProps) {
                     >
                         {systemConfig?.disableDeleteMessage ? '撤回消息 [已禁止]' : '撤回消息 [已允许]'}
                     </Button>
+=======
+                    {!systemConfig?.disableSendMessage ? (
+                        <Button
+                            className={styles.button}
+                            type="danger"
+                            onClick={handleDisableSendMessage}
+                        >
+                            开启禁言
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.button}
+                            onClick={handleEnableSendMessage}
+                        >
+                            关闭禁言
+                        </Button>
+                    )}
+                    {!systemConfig?.disableNewUserSendMessage ? (
+                        <Button
+                            className={styles.button}
+                            type="danger"
+                            onClick={handleDisableSNewUserendMessage}
+                        >
+                            开启新用户禁言
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.button}
+                            onClick={handleEnableNewUserSendMessage}
+                        >
+                            关闭新用户禁言
+                        </Button>
+                    )}
+                </div>
+                <div className={Common.block}>
+                    <p className={Common.title}>系统配置</p>
+                    {!systemConfig?.disableRegister ? (
+                        <Button
+                            className={styles.button}
+                            type="danger"
+                            onClick={handleDisableRegister}
+                        >
+                            禁用注册
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.button}
+                            onClick={handleEnableRegister}
+                        >
+                            启用注册
+                        </Button>
+                    )}
+                    {!systemConfig?.disableCreateGroup ? (
+                        <Button
+                            className={styles.button}
+                            type="danger"
+                            onClick={handleDisableCreateGroup}
+                        >
+                            禁用创建群组
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.button}
+                            onClick={handleEnableCreateGroup}
+                        >
+                            启用创建群组
+                        </Button>
+                    )}
+                </div>
+                <div className={Common.block}>
+                    <p className={Common.title}>在线用户 ({onlineUsers.length})</p>
+                    <div className={Style.sealList} style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {onlineUsers.length === 0 ? (
+                            <span style={{ color: '#999' }}>暂无在线用户</span>
+                        ) : (
+                            onlineUsers.map((user) => (
+                                <div
+                                    key={user.userId}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '4px 0',
+                                        borderBottom: '1px solid #eee',
+                                    }}
+                                >
+                                    <img
+                                        src={user.avatar}
+                                        alt={user.username}
+                                        style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            marginRight: '8px',
+                                        }}
+                                    />
+                                    <span style={{ flex: 1 }}>{user.username}</span>
+                                    <span
+                                        style={{
+                                            fontSize: '12px',
+                                            color: '#999',
+                                            marginLeft: '8px',
+                                        }}
+                                        title={`IP: ${user.ip}, OS: ${user.os}, Browser: ${user.browser}`}
+                                    >
+                                        {user.ip}
+                                    </span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+                <div className={Common.block}>
+                    <p className={Common.title}>更新用户标签</p>
+                    <div className={Style.inputBlock}>
+                        <Input
+                            className={`${Style.input} ${Style.tagUsernameInput}`}
+                            value={tagUsername}
+                            onChange={setTagUsername}
+                            placeholder="要更新标签的用户名"
+                        />
+                        <Input
+                            className={`${Style.input} ${Style.tagInput}`}
+                            value={tag}
+                            onChange={setTag}
+                            placeholder="标签内容"
+                        />
+                        <Button className={Style.button} onClick={handleSetTag}>
+                            确定
+                        </Button>
+                    </div>
+                </div>
+                <div className={Common.block}>
+                    <p className={Common.title}>重置用户密码</p>
+                    <div className={Style.inputBlock}>
+                        <Input
+                            className={Style.input}
+                            value={resetPasswordUsername}
+                            onChange={setResetPasswordUsername}
+                            placeholder="要重置密码的用户名"
+                        />
+                        <Button
+                            className={Style.button}
+                            onClick={handleResetPassword}
+                        >
+                            确定
+                        </Button>
+                    </div>
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
                 </div>
 
                 <div className={Common.block}>

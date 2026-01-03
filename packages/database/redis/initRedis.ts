@@ -86,6 +86,7 @@ export const DisableSendMessageKey = 'DisableSendMessage';
 export const DisableNewUserSendMessageKey = 'DisableNewUserSendMessageKey';
 export const DisableRegisterKey = 'DisableRegister';
 export const DisableCreateGroupKey = 'DisableCreateGroup';
+<<<<<<< HEAD
 export const DisableDeleteMessageKey = 'DisableDeleteMessage';
 
 // 封禁用户名列表的Redis key前缀
@@ -98,3 +99,5 @@ export async function getAllBannedUsernames() {
     const allBannedUsernameKeys = await keys('BannedUsername-*');
     return allBannedUsernameKeys.map((key) => key.replace('BannedUsername-', ''));
 }
+=======
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b

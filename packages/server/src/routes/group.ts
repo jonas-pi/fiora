@@ -8,8 +8,13 @@ import Group, { GroupDocument } from '@fiora/database/mongoose/models/group';
 import Socket from '@fiora/database/mongoose/models/socket';
 import Message from '@fiora/database/mongoose/models/message';
 import {
+<<<<<<< HEAD
     DisableCreateGroupKey,
     Redis,
+=======
+    Redis,
+    DisableCreateGroupKey,
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 } from '@fiora/database/redis/initRedis';
 
 const { isValid } = Types.ObjectId;
@@ -44,10 +49,21 @@ async function getGroupOnlineMembersHelper(group: GroupDocument) {
  * @param ctx Context
  */
 export async function createGroup(ctx: Context<{ name: string }>) {
+<<<<<<< HEAD
     // 检查Redis中的配置，如果Redis中没有则使用config中的默认值
     const redisDisableCreateGroup = (await Redis.get(DisableCreateGroupKey)) === 'true';
     const isCreateGroupDisabled = redisDisableCreateGroup || config.disableCreateGroup;
     assert(!isCreateGroupDisabled, '管理员已关闭创建群组功能');
+=======
+    // 从 Redis 读取配置，如果不存在则从环境变量读取
+    const disableCreateGroupRedis = await Redis.get(DisableCreateGroupKey);
+    const disableCreateGroup =
+        disableCreateGroupRedis !== null
+            ? disableCreateGroupRedis === 'true'
+            : config.disableCreateGroup;
+    
+    assert(!disableCreateGroup, '管理员已关闭创建群组功能');
+>>>>>>> 4c250ef99783abfcef7b11db5c49904b3c85077b
 
     const ownGroupCount = await Group.count({ creator: ctx.socket.user });
     assert(
