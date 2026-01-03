@@ -1,6 +1,7 @@
 import React from 'react';
 import QRCode from 'qrcode.react';
 
+import config from '@fiora/config/client';
 import Dialog from '../../components/Dialog';
 import Style from './Download.less';
 import Common from './Common.less';
@@ -12,7 +13,8 @@ interface DownloadProps {
 
 function Download(props: DownloadProps) {
     const { visible, onClose } = props;
-    const androidDownloadUrl = `${window.location.origin}/fiora.apk`;
+    // 优先使用配置的下载链接，如果没有配置则使用当前域名
+    const androidDownloadUrl = config.androidDownloadUrl || `${window.location.origin}/fiora.apk`;
     const iOSDownloadUrl = 'https://apps.apple.com/cn/app/fiora/id1554719127';
 
     return (

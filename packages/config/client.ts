@@ -34,4 +34,13 @@ export default {
     disableDeleteMessage: process.env.DisableDeleteMessage
         ? process.env.DisableDeleteMessage === 'true'
         : false,
+
+    /**
+     * APK 下载链接
+     * 如果设置了此值，将使用此链接作为 Android APK 下载地址
+     * 如果不设置，将使用 window.location.origin + '/fiora.apk'
+     * 建议设置为公网域名，确保手机扫码后可以正常下载
+     * 例如: 'https://fiora.nasforjonas.xyz/fiora.apk'
+     */
+    androidDownloadUrl: process.env.AndroidDownloadUrl || '',
 };
