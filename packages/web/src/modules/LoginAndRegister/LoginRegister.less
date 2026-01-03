@@ -20,6 +20,8 @@
     }
 }
 
+@import '../../styles/variable.less';
+
 .button {
     background-color: var(--primary-color-10);
     color: var(--primary-text-color-10);
@@ -27,7 +29,7 @@
     border: none;
     margin-top: 30px;
     transition: background-color 0.2s;
-    border-radius: 6px;
+    border-radius: @border-radius-base;
 
     &:hover {
         background-color: var(--primary-color-9);

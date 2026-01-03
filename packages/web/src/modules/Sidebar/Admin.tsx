@@ -40,7 +40,7 @@ const styles = {
         padding: 4px 8px;
         margin: 4px;
         background: #eee;
-        border-radius: 4px;
+        border-radius: 6px; // TODO: 使用 CSS 变量
         cursor: pointer;
         &:hover {
             background: #ffccc7;
@@ -50,7 +50,7 @@ const styles = {
     select: css`
         margin-right: 10px;
         height: 34px;
-        border-radius: 4px;
+        border-radius: 6px; // TODO: 使用 CSS 变量
         border: 1px solid #ddd;
     `
 };
