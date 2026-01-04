@@ -23,6 +23,7 @@ import * as messageRoutes from './routes/message';
 import * as systemRoutes from './routes/system';
 import * as notificationRoutes from './routes/notification';
 import * as historyRoutes from './routes/history';
+import * as stickerRoutes from './routes/sticker';
 import registerRoutes from './middlewares/registerRoutes';
 import uploadRouter from './routes/upload';
 
@@ -49,6 +50,36 @@ app.use(
         gzip: true,
         // 禁用缓存控制头，让浏览器可以正常刷新
         setHeaders: (res, path) => {
+            /**
+             * App 更新清单（manifest）
+             * - latest.json 必须尽量避免缓存，否则客户端会拿到旧版本信息
+             * - 这里按目录规则处理：/fiora-app/update/*.json
+             */
+            if (/\/fiora-app\/update\/.*\.json$/i.test(path)) {
+                res.setHeader(
+                    'Cache-Control',
+                    'no-cache, no-store, must-revalidate',
+                );
+                res.setHeader('Pragma', 'no-cache');
+                res.setHeader('Expires', '0');
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                return;
+            }
+
+            /**
+             * APK 文件（推荐长缓存）
+             * - 文件名带版本号时可以设置长缓存，降低带宽压力
+             * - 同时开启断点续传（多数静态服务器默认支持 Range，这里显式声明更直观）
+             */
+            if (/\/fiora-app\/apk\//i.test(path)) {
+                res.setHeader(
+                    'Cache-Control',
+                    'public, max-age=31536000, immutable',
+                );
+                res.setHeader('Accept-Ranges', 'bytes');
+                return;
+            }
+
             // 对于图片文件，设置较短的缓存时间，方便调试
             if (/\.(jpg|jpeg|png|gif|webp)$/i.test(path)) {
                 res.setHeader('Cache-Control', 'public, max-age=3600');
@@ -91,6 +122,7 @@ const routes: Routes = {
     ...systemRoutes,
     ...notificationRoutes,
     ...historyRoutes,
+    ...stickerRoutes,
 };
 Object.keys(routes).forEach((key) => {
     if (key.startsWith('_')) {

@@ -105,3 +105,71 @@
         transform: translate(-50%, -50%);
     }
 }
+
+/**
+ * 我的表情包（Sticker）
+ * - 第一个格子：添加按钮
+ * - 点击：发送
+ * - 长按/右键：删除
+ */
+.myStickers {
+    width: 100%;
+    height: 100%;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.stickerGrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 180px;
+    padding-right: 2px;
+
+    @media @mobile {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.stickerAdd,
+.stickerItem {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    transition: all 0.15s ease;
+
+    &:hover {
+        cursor: pointer;
+        transform: translateY(-1px);
+        border-color: rgba(0, 0, 0, 0.12);
+    }
+}
+
+.stickerAddPlus {
+    font-size: 26px;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.stickerImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.stickersLoading {
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    opacity: 0.85;
+}

@@ -20,6 +20,9 @@ tmp/
 .npm-cache/
 .yarn-cache/
 
+# 移动端仓库（独立项目，不纳入本仓库构建/提交）
+fiora-app/
+
 # Expo / React Native
 .expo/
 .expo-shared/
@@ -36,3 +39,9 @@ packages/server/public/avatar/*_*.*
 !packages/server/public/manifest.json
 !packages/server/public/index.html
 !packages/server/public/PrivacyPolicy.html
+
+# App 更新清单/安装包（服务端静态托管）
+!packages/server/public/fiora-app/
+!packages/server/public/fiora-app/update/
+!packages/server/public/fiora-app/update/latest.json
+!packages/server/public/fiora-app/update/history/

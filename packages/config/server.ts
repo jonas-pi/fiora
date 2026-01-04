@@ -74,4 +74,34 @@ export default {
         /** 是否启用聚合搜索（同时搜索官方资源库、搜狗版和百度版） */
         enableAggregate: env.EXPRESSION_API_AGGREGATE !== 'false', // 默认启用
     },
+
+    /**
+     * 自定义 Sticker（表情包）配置
+     *
+     * 说明：
+     * - “文件本体”仍复用现有上传（/api/upload 或 OSS）
+     * - 这里主要控制“表情包元数据”的落库接口限制（数量/大小/频率等）
+     */
+    stickers: {
+        /** 单用户最多表情包数量（默认 200） */
+        maxStickersPerUser: env.STICKER_MAX_COUNT
+            ? parseInt(env.STICKER_MAX_COUNT, 10)
+            : 200,
+        /** 单用户表情包总容量上限（字节，默认 200MB；<=0 表示不限制） */
+        maxTotalSizePerUser: env.STICKER_MAX_TOTAL_SIZE
+            ? parseInt(env.STICKER_MAX_TOTAL_SIZE, 10)
+            : 200 * 1024 * 1024,
+        /** 单张静态图最大大小（字节，默认 18MB） */
+        maxStaticSize: env.STICKER_MAX_STATIC_SIZE
+            ? parseInt(env.STICKER_MAX_STATIC_SIZE, 10)
+            : 18 * 1024 * 1024,
+        /** 单张 GIF 最大大小（字节，默认 20MB） */
+        maxGifSize: env.STICKER_MAX_GIF_SIZE
+            ? parseInt(env.STICKER_MAX_GIF_SIZE, 10)
+            : 20 * 1024 * 1024,
+        /** 每分钟最多新增次数（默认 10；<=0 表示不限制） */
+        maxUploadPerMinute: env.STICKER_MAX_UPLOAD_PER_MINUTE
+            ? parseInt(env.STICKER_MAX_UPLOAD_PER_MINUTE, 10)
+            : 10,
+    },
 };

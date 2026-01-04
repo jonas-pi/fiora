@@ -296,6 +296,37 @@ export async function searchExpression(keywords: string) {
 }
 
 /**
+ * 获取当前用户的自定义表情包列表
+ */
+export async function getUserStickers() {
+    const [, result] = await fetch('getUserStickers', {});
+    return result as any;
+}
+
+/**
+ * 新增当前用户的自定义表情包（元数据落库）
+ */
+export async function addUserSticker(data: {
+    url: string;
+    mime: string;
+    width?: number;
+    height?: number;
+    size?: number;
+    sha256?: string;
+}) {
+    const [, result] = await fetch('addUserSticker', data);
+    return result as any;
+}
+
+/**
+ * 删除当前用户的自定义表情包（软删除）
+ */
+export async function deleteUserSticker(stickerId: string) {
+    const [, result] = await fetch('deleteUserSticker', { stickerId });
+    return result as any;
+}
+
+/**
  * 发送消息
  * @param to 目标
  * @param type 消息类型

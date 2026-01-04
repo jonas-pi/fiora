@@ -1,0 +1,19 @@
+{
+  "version": "0.0.0",
+  "build": 0,
+  "title": "更新清单占位",
+  "notes": "请在发布新版本时更新该文件：version/notes/android.apkUrl 等字段",
+  "force": false,
+  "minSupportedVersion": "0.0.0",
+  "android": {
+    "apkUrl": "",
+    "sha256": "",
+    "size": 0
+  },
+  "ios": {
+    "appStoreUrl": "",
+    "ipaUrl": ""
+  }
+}
+
+
