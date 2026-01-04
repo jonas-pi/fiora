@@ -45,3 +45,4 @@ packages/server/public/avatar/*_*.*
 !packages/server/public/fiora-app/update/
 !packages/server/public/fiora-app/update/latest.json
 !packages/server/public/fiora-app/update/history/
+packages/server/public/fiora-app/apk/
