@@ -251,6 +251,33 @@ function Admin(props: AdminProps) {
         }
     }
 
+    /**
+     * 处理设置用户铭牌
+     */
+    async function handleSetTag() {
+        if (!tagUsername.trim()) {
+            Message.error('请输入用户名');
+            return;
+        }
+        if (!tag.trim()) {
+            Message.error('请输入标签内容');
+            return;
+        }
+        // 验证标签格式：允许5个汉字或者10个字母
+        if (!/^([0-9a-zA-Z]{1,2}|[\u4e00-\u9eff]){1,5}$/.test(tag.trim())) {
+            Message.error('标签不符合要求，允许5个汉字或者10个字母');
+            return;
+        }
+        const isSuccess = await setUserTag(tagUsername.trim(), tag.trim());
+        if (isSuccess) {
+            Message.success('用户标签已更新');
+            setTagUsername('');
+            setTag('');
+        } else {
+            Message.error('更新标签失败，请重试');
+        }
+    }
+
     return (
         <Dialog className={Style.admin} visible={visible} title="管理员控制台" onClose={onClose}>
             <div className={Common.container}>

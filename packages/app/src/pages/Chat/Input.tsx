@@ -154,20 +154,20 @@ export default function Input({ onHeightChange }: Props) {
             try {
                 // 使用支持进度的上传函数
                 const imageUrl = await uploadFileWithProgress(
-                    result.base64 as string,
-                    key,
+                result.base64 as string,
+                key,
                     (progress) => {
                         // 更新上传进度
                         action.updateSelfMessage(focus, id, {
                             percent: progress,
                         });
                     },
-                );
-                sendMessage(
-                    id,
-                    'image',
-                    `${imageUrl}?width=${result.width}&height=${result.height}`,
-                );
+            );
+            sendMessage(
+                id,
+                'image',
+                `${imageUrl}?width=${result.width}&height=${result.height}`,
+            );
             } catch (err) {
                 console.error(err);
                 // 上传失败时删除消息
@@ -204,20 +204,20 @@ export default function Input({ onHeightChange }: Props) {
             try {
                 // 使用支持进度的上传函数
                 const imageUrl = await uploadFileWithProgress(
-                    result.base64 as string,
-                    key,
+                result.base64 as string,
+                key,
                     (progress) => {
                         // 更新上传进度
                         action.updateSelfMessage(focus, id, {
                             percent: progress,
                         });
                     },
-                );
-                sendMessage(
-                    id,
-                    'image',
-                    `${imageUrl}?width=${result.width}&height=${result.height}`,
-                );
+            );
+            sendMessage(
+                id,
+                'image',
+                `${imageUrl}?width=${result.width}&height=${result.height}`,
+            );
             } catch (err) {
                 console.error(err);
                 // 上传失败时删除消息

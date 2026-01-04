@@ -96,6 +96,7 @@ if (process.env.NODE_ENV === 'development') {
     logger.info('[routes]', 'getBannedUsernameList exists:', typeof routes.getBannedUsernameList);
     logger.info('[routes]', 'banUsername exists:', typeof routes.banUsername);
     logger.info('[routes]', 'unbanUsername exists:', typeof routes.unbanUsername);
+    logger.info('[routes]', 'toggleGroupMute exists:', typeof routes.toggleGroupMute);
 }
 
 io.on('connection', async (socket) => {

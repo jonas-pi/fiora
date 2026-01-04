@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 
 import config from '@fiora/config/client';
 import setCssVariable from './utils/setCssVariable';
+import { loadCustomCss } from './utils/injectCustomCss';
 import App from './App';
 import store from './state/store';
 import getData from './localStorage';
@@ -42,6 +43,9 @@ if (config.frontendMonitorAppId) {
 // 更新 css variable
 const { primaryColor, primaryTextColor } = getData();
 setCssVariable(primaryColor, primaryTextColor);
+
+// 加载用户自定义 CSS
+loadCustomCss();
 
 // 请求 Notification 授权
 if (

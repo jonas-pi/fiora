@@ -249,9 +249,9 @@ function ChatInput() {
         img.onload = async () => {
             try {
                 messageId = addSelfMessage(
-                    'image',
-                    `${url}?width=${img.width}&height=${img.height}`,
-                );
+                'image',
+                `${url}?width=${img.width}&height=${img.height}`,
+            );
                 
                 // 使用支持进度的上传函数
                 const imageUrl = await uploadFileWithProgress(

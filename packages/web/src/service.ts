@@ -203,6 +203,25 @@ export async function leaveGroup(groupId: string) {
 }
 
 /**
+ * 切换群组禁言状态
+ * @param groupId 群组ID
+ * @param disableMute 是否禁言（true=禁言，false=不禁言）
+ */
+export async function toggleGroupMute(groupId: string, disableMute: boolean) {
+    const [error] = await fetch('toggleGroupMute', { groupId, disableMute });
+    return !error;
+}
+
+/**
+ * 获取群组基本信息
+ * @param groupId 群组ID
+ */
+export async function getGroupBasicInfo(groupId: string) {
+    const [, info] = await fetch('getGroupBasicInfo', { groupId });
+    return info;
+}
+
+/**
  * 添加好友
  * @param userId 目标用户id
  */

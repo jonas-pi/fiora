@@ -1,5 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import Switch from 'react-switch';
 
 import readDiskFIle from '../../utils/readDiskFile';
 import uploadFile, { getOSSFileUrl } from '../../utils/uploadFile';
@@ -17,6 +18,7 @@ import {
     changeGroupAvatar,
     deleteGroup,
     leaveGroup,
+    toggleGroupMute,
 } from '../../service';
 import useAction from '../../hooks/useAction';
 import config from '../../../../config/client';
@@ -29,17 +31,25 @@ interface GroupManagePanelProps {
     avatar: string;
     creator: string;
     onlineMembers: GroupMember[];
+    disableMute: boolean; // 是否禁言（true=禁言，false=不禁言）
 }
 
 function GroupManagePanel(props: GroupManagePanelProps) {
-    const { visible, onClose, groupId, avatar, creator, onlineMembers } = props;
+    const { visible, onClose, groupId, avatar, creator, onlineMembers, disableMute: initialDisableMute } = props;
 
     const action = useAction();
     const isLogin = useIsLogin();
     const selfId = useSelector((state: State) => state.user?._id);
+    const isAdmin = useSelector((state: State) => state.user?.isAdmin || false);
     const [deleteConfirmDialog, setDialogStatus] = useState(false);
     const [groupName, setGroupName] = useState('');
+    const [disableMute, setDisableMute] = useState(initialDisableMute);
     const context = useContext(ShowUserOrGroupInfoContext);
+
+    // 当 props 中的 disableMute 变化时，更新本地状态
+    useEffect(() => {
+        setDisableMute(initialDisableMute);
+    }, [initialDisableMute]);
 
     async function handleChangeGroupName() {
         const isSuccess = await changeGroupName(groupId, groupName);
@@ -69,10 +79,13 @@ function GroupManagePanel(props: GroupManagePanelProps) {
             );
             const isSuccess = await changeGroupAvatar(groupId, imageUrl);
             if (isSuccess) {
+                const avatarUrl = image.result instanceof Blob 
+                    ? URL.createObjectURL(image.result) 
+                    : imageUrl;
                 action.setLinkmanProperty(
                     groupId,
                     'avatar',
-                    URL.createObjectURL(image.result),
+                    avatarUrl,
                 );
                 Message.success('修改群头像成功');
             }
@@ -116,6 +129,21 @@ function GroupManagePanel(props: GroupManagePanelProps) {
         onClose();
     }
 
+    /**
+     * 切换群组禁言状态
+     */
+    async function handleToggleGroupMute() {
+        const newDisableMute = !disableMute;
+        const isSuccess = await toggleGroupMute(groupId, newDisableMute);
+        if (isSuccess) {
+            setDisableMute(newDisableMute);
+            action.setLinkmanProperty(groupId, 'disableMute', newDisableMute);
+            Message.success(newDisableMute ? '已开启群组禁言' : '已关闭群组禁言');
+        } else {
+            Message.error('操作失败，请重试');
+        }
+    }
+
     return (
         <div
             className={`${Style.groupManagePanel} ${visible ? 'show' : 'hide'}`}
@@ -155,6 +183,21 @@ function GroupManagePanel(props: GroupManagePanelProps) {
                                 alt="群头像预览"
                                 onClick={handleChangeGroupAvatar}
                             />
+                        </div>
+                    ) : null}
+
+                    {(isLogin && (selfId === creator || isAdmin)) ? (
+                        <div className={Style.block}>
+                            <p className={Style.blockTitle}>群组禁言</p>
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px' }}>
+                                <span style={{ marginRight: '10px', fontSize: '14px', color: '#333' }}>
+                                    {disableMute ? '已开启禁言（仅管理员可发言）' : '未开启禁言（所有成员可发言）'}
+                                </span>
+                                <Switch
+                                    onChange={handleToggleGroupMute}
+                                    checked={disableMute}
+                                />
+                            </div>
                         </div>
                     ) : null}
 

@@ -22,7 +22,7 @@ export const get = promisify(client.get).bind(client);
 
 export const expire = promisify(client.expire).bind(client);
 
-export const del = promisify(client.del).bind(client);
+export const del = promisify(client.del.bind(client)) as (key: string) => Promise<number>;
 
 export async function set(key: string, value: string, expireTime = Infinity) {
     await promisify(client.set).bind(client)(key, value);

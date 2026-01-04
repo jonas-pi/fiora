@@ -240,6 +240,20 @@ socket.on(
     },
 );
 
+socket.on(
+    'changeGroupMute',
+    ({ groupId, disableMute }: { groupId: string; disableMute: boolean }) => {
+        dispatch({
+            type: ActionTypes.SetLinkmanProperty,
+            payload: {
+                linkmanId: groupId,
+                key: 'disableMute',
+                value: disableMute,
+            } as SetLinkmanPropertyPayload,
+        });
+    },
+);
+
 socket.on('deleteGroup', ({ groupId }: { groupId: string }) => {
     dispatch({
         type: ActionTypes.RemoveLinkman,

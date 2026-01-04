@@ -15,6 +15,7 @@ export enum LocalStorageKey {
     SelfVoiceSwitch = 'selfVoiceSwitch',
     TagColorMode = 'tagColorMode',
     EnableSearchExpression = 'enableSearchExpression',
+    CustomCss = 'customCss',
 }
 
 /**

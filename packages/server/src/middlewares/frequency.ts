@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io';
+import config from '@fiora/config/server';
 import {
     getNewUserKey,
     getSealUserKey,
@@ -44,6 +45,13 @@ export default function frequency(
         if (event !== 'sendMessage') {
             next();
         } else {
+            // 管理员不受发言频率限制
+            const isAdmin = socket.data.user && config.administrator.includes(socket.data.user);
+            if (isAdmin) {
+                next();
+                return;
+            }
+
             const socketId = socket.id;
             const count = callTimes[socketId] || 0;
 

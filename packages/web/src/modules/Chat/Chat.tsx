@@ -163,6 +163,7 @@ function Chat() {
                     avatar={linkman.avatar}
                     creator={linkman.creator}
                     onlineMembers={linkman.onlineMembers}
+                    disableMute={linkman.disableMute || false}
                 />
             )}
         </div>

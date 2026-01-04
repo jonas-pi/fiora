@@ -58,6 +58,7 @@ export interface Group {
     createTime: string;
     creator: string;
     onlineMembers: GroupMember[];
+    disableMute?: boolean; // 是否禁言（true=禁言，false=不禁言）
 }
 
 /** 好友 */

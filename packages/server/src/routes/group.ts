@@ -73,8 +73,8 @@ export async function createGroup(ctx: Context<{ name: string }>) {
             creator: ctx.socket.user,
             members: [ctx.socket.user],
         } as GroupDocument);
-    } catch (err) {
-        if (err.name === 'ValidationError') {
+    } catch (err: any) {
+        if (err && err.name === 'ValidationError') {
             return '群组名包含不支持的字符或者长度超过限制';
         }
         throw err;
@@ -87,6 +87,7 @@ export async function createGroup(ctx: Context<{ name: string }>) {
         avatar: newGroup.avatar,
         createTime: newGroup.createTime,
         creator: newGroup.creator,
+        disableMute: newGroup.disableMute || false,
     };
 }
 
@@ -127,6 +128,7 @@ export async function joinGroup(ctx: Context<{ groupId: string }>) {
         avatar: group.avatar,
         createTime: group.createTime,
         creator: group.creator,
+        disableMute: group.disableMute || false,
         messages,
     };
 }
@@ -344,5 +346,38 @@ export async function getGroupBasicInfo(ctx: Context<{ groupId: string }>) {
         name: group.name,
         avatar: group.avatar,
         members: group.members.length,
+        disableMute: group.disableMute || false,
+    };
+}
+
+/**
+ * 切换群组禁言状态，只有群主或管理员有权限
+ * @param ctx Context
+ */
+export async function toggleGroupMute(
+    ctx: Context<{ groupId: string; disableMute: boolean }>,
+) {
+    const { groupId, disableMute } = ctx.data;
+    assert(isValid(groupId), '无效的群组ID');
+
+    const group = await Group.findOne({ _id: groupId });
+    if (!group) {
+        throw new AssertionError({ message: '群组不存在' });
+    }
+
+    // 只有群主或管理员可以切换禁言状态
+    const isCreator = group.creator && group.creator.toString() === ctx.socket.user.toString();
+    assert(
+        ctx.socket.isAdmin || isCreator,
+        '只有群主或管理员可以设置群组禁言',
+    );
+
+    await Group.updateOne({ _id: groupId }, { disableMute });
+
+    // 通知群组所有成员
+    ctx.socket.emit(groupId, 'changeGroupMute', { groupId, disableMute });
+
+    return {
+        msg: 'ok',
     };
 }

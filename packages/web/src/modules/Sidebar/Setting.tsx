@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Switch from 'react-switch';
 import { RadioGroup, RadioButton } from 'react-radio-buttons';
@@ -14,6 +14,8 @@ import config from '../../../../config/client';
 import Message from '../../components/Message';
 import useAction from '../../hooks/useAction';
 import { State } from '../../state/reducer';
+import { injectCustomCss } from '../../utils/injectCustomCss';
+import Button from '../../components/Button';
 
 import Style from './Setting.less';
 import Common from './Common.less';
@@ -72,6 +74,16 @@ function Setting(props: SettingProps) {
     );
 
     const [backgroundLoading, toggleBackgroundLoading] = useState(false);
+    // 从 localStorage 加载已保存的 CSS，但不在输入框中显示（避免实时应用）
+    const [customCss, setCustomCss] = useState('');
+
+    // 组件挂载时，从 localStorage 加载已保存的 CSS 到输入框
+    useEffect(() => {
+        if (visible) {
+            const savedCss = window.localStorage.getItem(LocalStorageKey.CustomCss) || '';
+            setCustomCss(savedCss);
+        }
+    }, [visible]); // 当设置面板打开时加载
 
     function setTheme(themeName: string) {
         action.setStatus('theme', themeName);
@@ -147,6 +159,32 @@ function Setting(props: SettingProps) {
         const mewPrimaryTextColor = `${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`;
         action.setStatus('primaryTextColor', mewPrimaryTextColor);
         setCssVariable(primaryColor, mewPrimaryTextColor);
+    }
+
+    /**
+     * 处理自定义 CSS 输入变化（仅更新状态，不应用）
+     */
+    function handleCustomCssChange(newCss: string) {
+        setCustomCss(newCss);
+    }
+
+    /**
+     * 应用自定义 CSS（如果为空则清除）
+     * 注意：每次应用时都会先清除之前的自定义CSS，再应用新的
+     */
+    function handleApplyCustomCss() {
+        if (!customCss || !customCss.trim()) {
+            // 如果为空，清除自定义 CSS
+            window.localStorage.removeItem(LocalStorageKey.CustomCss);
+            injectCustomCss(''); // 这会清除所有之前的自定义CSS
+            Message.success('已清除自定义 CSS');
+        } else {
+            // 应用自定义 CSS
+            // injectCustomCss 函数内部会先清除之前的自定义CSS，再应用新的
+            window.localStorage.setItem(LocalStorageKey.CustomCss, customCss);
+            injectCustomCss(customCss);
+            Message.success('CSS 已应用');
+        }
     }
 
     return (
@@ -406,6 +444,43 @@ function Setting(props: SettingProps) {
                                 )}
                             </>
                         )}
+                    </div>
+                </TabPane>
+                <TabPane tab="自定义CSS" key="customCss">
+                    <div
+                        className={`${Common.container} ${Style.scrollContainer}`}
+                    >
+                        <div className={Common.block}>
+                            <p className={Common.title}>自定义样式</p>
+                            <p className={Style.backgroundTip}>
+                                在此处粘贴您的 CSS 代码，点击"应用"按钮后生效。
+                                如果输入框为空时点击"应用"，将清除所有自定义 CSS。
+                                注意：错误的 CSS 可能导致界面异常，请谨慎使用。
+                            </p>
+                            <textarea
+                                className={Style.cssTextarea}
+                                value={customCss}
+                                onChange={(e) => handleCustomCssChange(e.target.value)}
+                                placeholder={`/* 在此处粘贴您的 CSS 代码 */
+
+.component-button {
+    border-radius: 8px !important;
+}
+
+.message {
+    padding: 10px 15px !important;
+}`}
+                                spellCheck={false}
+                            />
+                            <div style={{ marginTop: '10px' }}>
+                                <Button
+                                    className={Style.button}
+                                    onClick={handleApplyCustomCss}
+                                >
+                                    {customCss && customCss.trim() ? '应用' : '清除'}
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </TabPane>
             </Tabs>

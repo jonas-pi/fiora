@@ -111,6 +111,11 @@ export async function sendMessage(ctx: Context<SendMessageData>) {
     if (isValid(to)) {
         toGroup = await Group.findOne({ _id: to });
         assert(toGroup, '群组不存在');
+        
+        // 检查群组禁言状态，管理员不受限制
+        if (toGroup.disableMute && !ctx.socket.isAdmin) {
+            assert(false, '该群组已开启禁言，只有管理员可以发言');
+        }
     } else {
         const userId = to.replace(ctx.socket.user.toString(), '');
         assert(isValid(userId), '无效的用户ID');

@@ -30,6 +30,10 @@ const GroupSchema = new Schema({
             ref: 'User',
         },
     ],
+    disableMute: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 export interface GroupDocument extends Document {
@@ -45,6 +49,8 @@ export interface GroupDocument extends Document {
     isDefault: boolean;
     /** 成员 */
     members: string[];
+    /** 是否禁言（false表示不禁言，true表示禁言） */
+    disableMute: boolean;
     /** 创建时间 */
     createTime: Date;
 }

@@ -44,12 +44,13 @@ export default function registerRoutes(socket: Socket, routes: Routes) {
                     typeof res === 'string' ? res : 'null',
                 );
                 cb(res);
-            } catch (err) {
+            } catch (err: any) {
                 if (err instanceof assert.AssertionError) {
                     cb(err.message);
                 } else {
-                    logger.error(`[${event}]`, err.message);
-                    cb(`Server Error: ${err.message}`);
+                    const errorMessage = err?.message || String(err);
+                    logger.error(`[${event}]`, errorMessage);
+                    cb(`Server Error: ${errorMessage}`);
                 }
             }
         } else {

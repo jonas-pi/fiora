@@ -23,7 +23,6 @@ import {
     getBannedUsernameKey,
     DisableRegisterKey,
     Redis,
-    DisableRegisterKey,
 } from '@fiora/database/redis/initRedis';
 
 const { isValid } = Types.ObjectId;
