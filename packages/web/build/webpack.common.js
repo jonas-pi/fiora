@@ -13,6 +13,10 @@ module.exports = {
         filename: 'js/[name].[chunkhash:8].js',
         path: path.resolve(__dirname, '../dist/fiora'),
     },
+    cache: {
+        type: 'filesystem',
+        cacheDirectory: path.resolve(__dirname, '../../tmp/webpack-cache'),
+    },
     resolve: {
         extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     },

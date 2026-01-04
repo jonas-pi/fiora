@@ -13,6 +13,13 @@ lerna-debug.log
 .env
 .env2
 
+# 临时文件和缓存目录
+tmp/
+*.tmp
+*.log
+.npm-cache/
+.yarn-cache/
+
 # Expo / React Native
 .expo/
 .expo-shared/
