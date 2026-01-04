@@ -58,4 +58,20 @@ export default {
         bucket: env.BUCKET || '',
         endpoint: env.ENDPOINT || '',
     },
+
+    /** 表情包 API 配置 (API盒子) */
+    expressionApi: {
+        /** API 接口地址 - 官方资源库版 */
+        url: env.EXPRESSION_API_URL || 'https://cn.apihz.cn/api/img/apihzbqb.php',
+        /** API 接口地址 - 搜狗版 */
+        urlSogou: env.EXPRESSION_API_URL_SOGOU || 'https://cn.apihz.cn/api/img/apihzbqbsougou.php',
+        /** API 接口地址 - 百度版 */
+        urlBaidu: env.EXPRESSION_API_URL_BAIDU || 'https://cn.apihz.cn/api/img/apihzbqbbaidu.php',
+        /** 开发者 ID (可在 .env 中配置 EXPRESSION_API_ID 覆盖) */
+        id: env.EXPRESSION_API_ID || '10011686',
+        /** 开发者 KEY (可在 .env 中配置 EXPRESSION_API_KEY 覆盖) */
+        key: env.EXPRESSION_API_KEY || 'aeeb32f7f4f6c597f5366c5e94bde460',
+        /** 是否启用聚合搜索（同时搜索官方资源库、搜狗版和百度版） */
+        enableAggregate: env.EXPRESSION_API_AGGREGATE !== 'false', // 默认启用
+    },
 };

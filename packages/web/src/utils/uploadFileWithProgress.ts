@@ -67,6 +67,11 @@ export default async function uploadFileWithProgress(
 
         // 发送请求
         xhr.open('POST', uploadUrl);
+        // 添加必要的请求头（如果需要认证，可以从 localStorage 获取 token）
+        const token = window.localStorage.getItem('token');
+        if (token) {
+            xhr.setRequestHeader('x-auth-token', token);
+        }
         xhr.send(formData);
     });
 }
@@ -138,6 +143,11 @@ export async function uploadBase64FileWithProgress(
 
         // 发送请求
         xhr.open('POST', uploadUrl);
+        // 添加必要的请求头（如果需要认证，可以从 localStorage 获取 token）
+        const token = window.localStorage.getItem('token');
+        if (token) {
+            xhr.setRequestHeader('x-auth-token', token);
+        }
         xhr.send(formData);
     });
 }

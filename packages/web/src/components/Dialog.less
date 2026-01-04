@@ -15,6 +15,50 @@
     .rc-dialog-wrap {
         overflow: hidden !important;
     }
+    
+    /* 修复 rc-dialog 的无障碍性问题 */
+    /* 当对话框隐藏时（aria-hidden="true"），移除其内部元素的 tabindex */
+    .rc-dialog-wrap[aria-hidden="true"],
+    .rc-dialog-wrap[aria-hidden="true"] * {
+        /* 移除所有可聚焦元素的 tabindex */
+        *[tabindex] {
+            tabindex: -1 !important;
+        }
+        
+        /* 移除所有可聚焦元素的 tabindex（包括 tabindex="0"） */
+        *[tabindex="0"] {
+            tabindex: -1 !important;
+        }
+        
+        /* 确保隐藏的元素不会获得焦点 */
+        pointer-events: none !important;
+        
+        /* 移除所有输入元素的焦点能力 */
+        input,
+        textarea,
+        select,
+        button,
+        a,
+        [role="button"],
+        [role="link"],
+        [role="menuitem"] {
+            pointer-events: none !important;
+            tabindex: -1 !important;
+        }
+    }
+    
+    /* 修复对话框内容区域 */
+    .rc-dialog[aria-hidden="true"],
+    .rc-dialog-content[aria-hidden="true"] {
+        *[tabindex] {
+            tabindex: -1 !important;
+        }
+        
+        * {
+            pointer-events: none !important;
+        }
+    }
+    
     .rc-dialog-close {
         top: 0 !important;
         right: 10px !important;

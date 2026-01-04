@@ -32,15 +32,22 @@ function Expression(props: ExpressionProps) {
         if (keywords) {
             toggleSearchLoading(true);
             setSearchResults([]);
-            const result = await searchExpression(keywords);
-            if (result) {
-                if (result.length !== 0) {
-                    setSearchResults(result);
-                } else {
-                    Message.info('没有相关表情, 换个关键字试试吧');
+            try {
+                const result = await searchExpression(keywords);
+                if (result) {
+                    if (result.length !== 0) {
+                        setSearchResults(result);
+                    } else {
+                        Message.info('没有相关表情, 换个关键字试试吧');
+                    }
                 }
+            } catch (err: any) {
+                // 错误信息已经在 service.ts 中通过 Message.error 显示
+                // 这里只需要确保 loading 状态被重置
+                console.error('[Expression] 搜索表情包失败:', err);
+            } finally {
+                toggleSearchLoading(false);
             }
-            toggleSearchLoading(false);
         }
     }
 

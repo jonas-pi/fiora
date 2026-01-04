@@ -241,6 +241,20 @@ socket.on(
 );
 
 socket.on(
+    'changeGroupAvatar',
+    ({ groupId, avatar }: { groupId: string; avatar: string }) => {
+        dispatch({
+            type: ActionTypes.SetLinkmanProperty,
+            payload: {
+                linkmanId: groupId,
+                key: 'avatar',
+                value: avatar,
+            } as SetLinkmanPropertyPayload,
+        });
+    },
+);
+
+socket.on(
     'changeGroupMute',
     ({ groupId, disableMute }: { groupId: string; disableMute: boolean }) => {
         dispatch({

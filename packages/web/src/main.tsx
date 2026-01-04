@@ -16,9 +16,39 @@ import getData from './localStorage';
 // 注册 Service Worker
 if (window.location.protocol === 'https:' && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register(`/service-worker.js`);
+        navigator.serviceWorker.register(`/service-worker.js`).catch((err) => {
+            // 静默处理 Service Worker 注册错误（可能是浏览器扩展冲突）
+            console.warn('[Service Worker] 注册失败:', err);
+        });
     });
 }
+
+// 捕获并忽略浏览器扩展引起的消息通道错误
+// 这个错误通常由 Chrome 扩展引起，不影响应用功能
+window.addEventListener('error', (event) => {
+    if (
+        event.error &&
+        event.error.message &&
+        event.error.message.includes('message channel closed before a response was received')
+    ) {
+        // 静默忽略这个错误（由浏览器扩展引起）
+        event.preventDefault();
+        return false;
+    }
+}, true);
+
+// 捕获未处理的 Promise 拒绝（包括消息通道错误）
+window.addEventListener('unhandledrejection', (event) => {
+    if (
+        event.reason &&
+        event.reason.message &&
+        event.reason.message.includes('message channel closed before a response was received')
+    ) {
+        // 静默忽略这个错误（由浏览器扩展引起）
+        event.preventDefault();
+        return false;
+    }
+});
 
 // 如果配置了前端监控, 动态加载并启动监控
 if (config.frontendMonitorAppId) {
@@ -46,6 +76,16 @@ setCssVariable(primaryColor, primaryTextColor);
 
 // 加载用户自定义 CSS
 loadCustomCss();
+
+// 修复 aria-hidden 无障碍性问题
+// 延迟加载以确保在 React 渲染完成后执行
+setTimeout(() => {
+    import('./utils/fixAriaHidden').then(({ observeAriaHidden }) => {
+        observeAriaHidden();
+    }).catch((err) => {
+        console.warn('[fixAriaHidden] 加载失败:', err);
+    });
+}, 100);
 
 // 请求 Notification 授权
 if (

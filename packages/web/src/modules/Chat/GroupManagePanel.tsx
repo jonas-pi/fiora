@@ -79,18 +79,17 @@ function GroupManagePanel(props: GroupManagePanelProps) {
             );
             const isSuccess = await changeGroupAvatar(groupId, imageUrl);
             if (isSuccess) {
-                const avatarUrl = image.result instanceof Blob 
-                    ? URL.createObjectURL(image.result) 
-                    : imageUrl;
+                // 使用服务器返回的路径，而不是本地 blob URL
+                // 这样其他用户也能看到更新后的头像
                 action.setLinkmanProperty(
                     groupId,
                     'avatar',
-                    avatarUrl,
+                    imageUrl,
                 );
                 Message.success('修改群头像成功');
             }
         } catch (err) {
-            console.error(err);
+            console.error('[GroupAvatar] 上传失败:', err);
             Message.error('上传群头像失败');
         }
     }
@@ -177,12 +176,15 @@ function GroupManagePanel(props: GroupManagePanelProps) {
                     {isLogin && selfId === creator ? (
                         <div className={Style.block}>
                             <p className={Style.blockTitle}>修改群头像</p>
-                            <img
-                                className={Style.avatar}
-                                src={getOSSFileUrl(avatar)}
-                                alt="群头像预览"
+                            <div
+                                style={{ cursor: 'pointer', display: 'inline-block' }}
                                 onClick={handleChangeGroupAvatar}
-                            />
+                            >
+                                <Avatar
+                                    size={80}
+                                    src={avatar}
+                                />
+                            </div>
                         </div>
                     ) : null}
 

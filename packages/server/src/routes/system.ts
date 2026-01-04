@@ -67,63 +67,271 @@ export async function search(ctx: Context<{ keywords: string }>) {
 }
 
 /**
- * 搜索表情包, 爬其它站资源
+ * 调用单个表情包 API
+ * @param apiUrl API 地址
+ * @param apiId 开发者 ID
+ * @param apiKey 开发者 KEY
+ * @param keywords 关键词
+ * @param limit 返回数量限制
+ * @param apiType API 类型：'official' | 'sogou' | 'baidu'
+ * @returns 表情包结果数组
+ */
+async function callExpressionApi(
+    apiUrl: string,
+    apiId: string,
+    apiKey: string,
+    keywords: string,
+    limit: number,
+    apiType: 'official' | 'sogou' | 'baidu' = 'official',
+): Promise<Array<{ image: string; width: number; height: number }>> {
+    try {
+        let params: URLSearchParams;
+        
+        if (apiType === 'sogou') {
+            // 搜狗版 API: https://www.apihz.cn/api/apihzbqbsougou.html
+            // 参数：id, key, words, page
+            params = new URLSearchParams({
+                id: apiId,
+                key: apiKey,
+                words: keywords,
+                page: '1',
+            });
+        } else if (apiType === 'baidu') {
+            // 百度版 API: https://www.apihz.cn/api/apihzbqbbaidu.html
+            // 参数：id, key, words, page, limit
+            params = new URLSearchParams({
+                id: apiId,
+                key: apiKey,
+                words: keywords,
+                page: '1',
+                limit: limit.toString(),
+            });
+        } else {
+            // 官方资源库版 API: https://www.apihz.cn/api/apihzbqb.html
+            // 参数：id, key, type, words, page, limit
+            params = new URLSearchParams({
+                id: apiId,
+                key: apiKey,
+                type: '2', // 2=指定关键词搜索
+                words: keywords,
+                page: '1',
+                limit: limit.toString(),
+            });
+        }
+
+        const res = await axios({
+            method: 'get',
+            url: `${apiUrl}?${params.toString()}`,
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            },
+            timeout: 10000, // 10秒超时
+            validateStatus: (status) => status < 500, // 允许 4xx 状态码
+        });
+
+        if (res.status !== 200) {
+            const apiName = apiType === 'sogou' ? '搜狗版' : apiType === 'baidu' ? '百度版' : '官方版';
+            logger.warn(`[searchExpression] ${apiName} HTTP status:`, res.status);
+            return [];
+        }
+
+        const data = res.data;
+        if (data.code !== 200) {
+            const apiName = apiType === 'sogou' ? '搜狗版' : apiType === 'baidu' ? '百度版' : '官方版';
+            logger.warn(`[searchExpression] ${apiName} API error:`, data.msg || '未知错误');
+            return [];
+        }
+
+        // 返回格式转换：API盒子返回的是图片URL数组
+        const images = (data.res || []).map((imageUrl: string) => ({
+            image: imageUrl,
+            width: 200, // 默认宽度，实际使用时浏览器会自动获取
+            height: 200, // 默认高度，实际使用时浏览器会自动获取
+        }));
+
+        return images;
+    } catch (err: any) {
+        const apiName = apiType === 'sogou' ? '搜狗版' : apiType === 'baidu' ? '百度版' : '官方版';
+        logger.error(`[searchExpression] ${apiName} axios error:`, err.message);
+        return []; // 单个 API 失败不影响整体，返回空数组
+    }
+}
+
+/**
+ * 搜索表情包, 聚合搜索 API盒子官方资源库和搜狗版
+ * 官方资源库 API文档: https://www.apihz.cn/api/apihzbqb.html
+ * 搜狗版 API文档: https://www.apihz.cn/api/apihzbqbsougou.html
  * @param ctx Context
  */
 export async function searchExpression(
     ctx: Context<{ keywords: string; limit?: number }>,
 ) {
-    const { keywords, limit = Infinity } = ctx.data;
-    if (keywords === '') {
+    const { keywords, limit = 10 } = ctx.data;
+    
+    // 如果没有关键词，返回空数组
+    if (!keywords || keywords.trim() === '') {
         return [];
     }
 
-    const res = await axios({
-        method: 'get',
-        url: `https://pic.sogou.com/pics/json.jsp?query=${encodeURIComponent(
-            `${keywords} 表情`,
-        )}&st=5&start=0&xml_len=60&callback=callback&reqFrom=wap_result&`,
-        headers: {
-            accept: '*/*',
-            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7',
-            'cache-control': 'no-cache',
-            pragma: 'no-cache',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'same-origin',
-            referrer: `https://pic.sogou.com/pic/emo/searchList.jsp?statref=search_form&uID=hTHHybkSPt37C46z&spver=0&rcer=&keyword=${encodeURIComponent(
-                keywords,
-            )}`,
-            referrerPolicy: 'no-referrer-when-downgrade',
-            'user-agent':
-                'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
-        },
-    });
-    assert(res.status === 200, '搜索表情包失败, 请重试');
+    // API盒子接口配置
+    // 已配置默认的开发者 ID 和 KEY，如需修改可在 .env 文件中设置：
+    // EXPRESSION_API_ID=你的开发者ID
+    // EXPRESSION_API_KEY=你的开发者KEY
+    // EXPRESSION_API_URL=https://cn.apihz.cn/api/img/apihzbqb.php (可选)
+    // EXPRESSION_API_URL_SOGOU=https://cn.apihz.cn/api/img/apihzbqbsougou.php (可选)
+    // EXPRESSION_API_URL_BAIDU=https://cn.apihz.cn/api/img/apihzbqbbaidu.php (可选)
+    // EXPRESSION_API_AGGREGATE=false (可选，设置为 false 禁用聚合搜索，仅使用官方资源库)
+    const apiId = config.expressionApi?.id || '10011686';
+    const apiKey = config.expressionApi?.key || 'aeeb32f7f4f6c597f5366c5e94bde460';
+    const apiUrl = config.expressionApi?.url || 'https://cn.apihz.cn/api/img/apihzbqb.php';
+    const apiUrlSogou = config.expressionApi?.urlSogou || 'https://cn.apihz.cn/api/img/apihzbqbsougou.php';
+    const apiUrlBaidu = config.expressionApi?.urlBaidu || 'https://cn.apihz.cn/api/img/apihzbqbbaidu.php';
+    const enableAggregate = config.expressionApi?.enableAggregate !== false; // 默认启用聚合搜索
+    
+    // 限制关键词长度
+    // 官方资源库版：不超过10个汉字
+    // 搜狗版：不超过100个汉字
+    // 百度版：不超过100个汉字
+    const trimmedKeywords = keywords.trim();
+    const officialKeywords = trimmedKeywords.substring(0, 10);
+    const sogouKeywords = trimmedKeywords.substring(0, 100);
+    const baiduKeywords = trimmedKeywords.substring(0, 100);
+    
+    // 限制返回数量
+    // - 客户端默认请求 15 个（已增加）
+    // - 每个 API 最多返回 requestLimit 个
+    // - 聚合后去重，最终返回不超过 requestLimit 个
+    // - 最大限制为 30 个（已增加，原来 20 个）
+    // - 搜狗版和百度版没有 limit 参数或 limit 较大，返回数量由 API 决定
+    const requestLimit = Math.min(limit || 15, 30);
 
     try {
-        const parseDataResult = res.data.match(/callback\((.+)\)/);
-        const data = JSON.parse(`${parseDataResult[1]}`);
+        // 并行调用三个 API（如果启用聚合搜索）
+        const promises: Promise<Array<{ image: string; width: number; height: number }>>[] = [
+            callExpressionApi(apiUrl, apiId, apiKey, officialKeywords, requestLimit, 'official'),
+        ];
 
-        type Image = {
-            locImageLink: string;
-            width: number;
-            height: number;
-        };
-        const images = data.items as Image[];
-        return images
-            .map(({ locImageLink, width, height }) => ({
-                image: locImageLink,
-                width,
-                height,
-            }))
-            .filter((image, index) =>
-                limit === Infinity ? true : index < limit,
+        if (enableAggregate) {
+            promises.push(
+                callExpressionApi(apiUrlSogou, apiId, apiKey, sogouKeywords, requestLimit, 'sogou'),
+                callExpressionApi(apiUrlBaidu, apiId, apiKey, baiduKeywords, requestLimit, 'baidu'),
             );
-    } catch (err) {
-        assert(false, '搜索表情包失败, 数据解析异常');
-    }
+        }
 
-    return [];
+        // 等待所有 API 调用完成
+        const results = await Promise.all(promises);
+        
+        // 合并结果并去重（基于图片 URL）
+        // 排序策略：官方资源库、搜狗版、百度版三个 API 均分显示，交替显示
+        const imageUrlSet = new Set<string>();
+        const mergedImages: Array<{ image: string; width: number; height: number; source?: string }> = [];
+        
+        const officialResults = results[0] || [];
+        const sogouResults = enableAggregate && results[1] ? results[1] : [];
+        const baiduResults = enableAggregate && results[2] ? results[2] : [];
+        
+        // 计算每个 API 应该返回的数量（三个 API 均分）
+        const apiCount = enableAggregate ? 3 : 1;
+        const perApiLimit = Math.ceil(requestLimit / apiCount);
+        const officialLimit = Math.min(perApiLimit, officialResults.length);
+        const sogouLimit = Math.min(perApiLimit, sogouResults.length);
+        const baiduLimit = Math.min(perApiLimit, baiduResults.length);
+        
+        // 交替添加结果：官方 → 搜狗 → 百度 → 官方 → 搜狗 → 百度 ...
+        let officialIndex = 0;
+        let sogouIndex = 0;
+        let baiduIndex = 0;
+        let officialCount = 0;
+        let sogouCount = 0;
+        let baiduCount = 0;
+        
+        while (mergedImages.length < requestLimit) {
+            let added = false;
+            
+            // 按顺序添加：官方 → 搜狗 → 百度
+            if (officialCount < officialLimit && officialIndex < officialResults.length) {
+                const item = officialResults[officialIndex];
+                officialIndex++;
+                if (!imageUrlSet.has(item.image)) {
+                    imageUrlSet.add(item.image);
+                    mergedImages.push({ ...item, source: 'official' });
+                    officialCount++;
+                    added = true;
+                }
+            }
+            
+            if (!added && enableAggregate && sogouCount < sogouLimit && sogouIndex < sogouResults.length) {
+                const item = sogouResults[sogouIndex];
+                sogouIndex++;
+                if (!imageUrlSet.has(item.image)) {
+                    imageUrlSet.add(item.image);
+                    mergedImages.push({ ...item, source: 'sogou' });
+                    sogouCount++;
+                    added = true;
+                }
+            }
+            
+            if (!added && enableAggregate && baiduCount < baiduLimit && baiduIndex < baiduResults.length) {
+                const item = baiduResults[baiduIndex];
+                baiduIndex++;
+                if (!imageUrlSet.has(item.image)) {
+                    imageUrlSet.add(item.image);
+                    mergedImages.push({ ...item, source: 'baidu' });
+                    baiduCount++;
+                    added = true;
+                }
+            }
+            
+            // 如果三个 API 都没有更多结果，跳出循环
+            if (!added) {
+                break;
+            }
+        }
+        
+        // 如果还有空间，继续填充剩余的结果（按优先级：官方 > 搜狗 > 百度）
+        while (mergedImages.length < requestLimit && officialCount < officialLimit && officialIndex < officialResults.length) {
+            const item = officialResults[officialIndex];
+            officialIndex++;
+            if (!imageUrlSet.has(item.image)) {
+                imageUrlSet.add(item.image);
+                mergedImages.push({ ...item, source: 'official' });
+                officialCount++;
+            }
+        }
+        
+        if (enableAggregate) {
+            while (mergedImages.length < requestLimit && sogouCount < sogouLimit && sogouIndex < sogouResults.length) {
+                const item = sogouResults[sogouIndex];
+                sogouIndex++;
+                if (!imageUrlSet.has(item.image)) {
+                    imageUrlSet.add(item.image);
+                    mergedImages.push({ ...item, source: 'sogou' });
+                    sogouCount++;
+                }
+            }
+            
+            while (mergedImages.length < requestLimit && baiduCount < baiduLimit && baiduIndex < baiduResults.length) {
+                const item = baiduResults[baiduIndex];
+                baiduIndex++;
+                if (!imageUrlSet.has(item.image)) {
+                    imageUrlSet.add(item.image);
+                    mergedImages.push({ ...item, source: 'baidu' });
+                    baiduCount++;
+                }
+            }
+        }
+
+        // 移除 source 字段（前端不需要）
+        const finalImages = mergedImages.map(({ source, ...item }) => item);
+
+        logger.info(`[searchExpression] 聚合搜索完成，关键词: "${keywords}", 官方版: ${officialResults.length}个(使用${officialCount}个), 搜狗版: ${sogouResults.length}个(使用${sogouCount}个), 百度版: ${baiduResults.length}个(使用${baiduCount}个), 合并去重后: ${finalImages.length}个, 限制: ${requestLimit}个`);
+        
+        return finalImages;
+    } catch (err: any) {
+        logger.error('[searchExpression] 聚合搜索失败:', err.message);
+        throw new AssertionError({ message: `搜索表情包失败: ${err.message || '网络错误'}` });
+    }
 }
 
 /**
@@ -361,8 +569,10 @@ export async function uploadFile(
         }
 
         const [directory, fileName] = ctx.data.fileName.split('/');
-        // 修复：使用实际的 __dirname 变量而不是字符串字面量
-        const filePath = path.resolve(__dirname, '../public', directory);
+        // 修复：__dirname 是 routes 目录，需要回到 server 目录再进入 public
+        // __dirname = packages/server/src/routes
+        // 需要: packages/server/public
+        const filePath = path.resolve(__dirname, '../../public', directory);
         const isExists = await promisify(fs.exists)(filePath);
         if (!isExists) {
             // 确保目录存在，使用 recursive 选项创建多级目录
@@ -385,7 +595,7 @@ export async function uploadFile(
         }
         await promisify(fs.writeFile)(
             path.resolve(filePath, fileName),
-            fileData,
+            fileData as any,
         );
         return {
             url: `/${ctx.data.fileName}`,

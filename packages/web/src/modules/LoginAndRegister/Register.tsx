@@ -59,6 +59,8 @@ function Register() {
                 value={username}
                 onChange={setUsername}
                 onEnter={handleRegister}
+                id="register-username"
+                name="username"
             />
             <h3 className={Style.title}>密码</h3>
             <Input
@@ -67,6 +69,8 @@ function Register() {
                 value={password}
                 onChange={setPassword}
                 onEnter={handleRegister}
+                id="register-password"
+                name="password"
             />
             <button
                 className={Style.button}

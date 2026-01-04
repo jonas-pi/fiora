@@ -60,6 +60,8 @@ function Login() {
                 value={username}
                 onChange={setUsername}
                 onEnter={handleLogin}
+                id="login-username"
+                name="username"
             />
             <h3 className={Style.title}>密码</h3>
             <Input
@@ -68,6 +70,8 @@ function Login() {
                 value={password}
                 onChange={setPassword}
                 onEnter={handleLogin}
+                id="login-password"
+                name="password"
             />
             <button
                 className={Style.button}

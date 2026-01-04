@@ -3,7 +3,7 @@
 
 Fiora is an interesting open source chat application. It is developed based on [node.js](https://nodejs.org/), [react](https://reactjs.org/) and [socket.io](https://socket.io/) technologies
 
-- **Richness:** Fiora contains backend, frontend, Android and iOS apps
+- **Richness:** Fiora contains backend and frontend
 - **Cross Platform:** Fiora is developed with node.js. Supports Windows / Linux / macOS systems
 - **Open Source:** Fiora follows the MIT open source license
 
@@ -79,7 +79,6 @@ Fiora 采用 monorepo 架构，使用 Lerna 管理多个包：
 ```
 fiora/
 ├── packages/
-│   ├── app/              # 移动端应用（React Native / Expo）
 │   ├── web/              # Web 前端（React + TypeScript）
 │   ├── server/           # 服务端（Koa.js + Socket.IO）
 │   ├── database/         # 数据库模型和初始化（Mongoose）
@@ -108,9 +107,6 @@ fiora/
 - **TypeScript**: 类型安全
 - **Webpack**: 构建工具
 - **Less**: CSS 预处理器
-
-**移动端 (Mobile)**
-- **React Native / Expo**: 跨平台移动应用
 
 ### Key Directories / 关键目录说明
 
@@ -401,16 +397,6 @@ npm run lint
 ```bash
 npm run build:web
 # 构建产物在 packages/server/public/ 目录
-```
-
-#### 构建移动端
-
-```bash
-# Android
-npm run build:android
-
-# iOS
-npm run build:ios
 ```
 
 #### 生产环境部署

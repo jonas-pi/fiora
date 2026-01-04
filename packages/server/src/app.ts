@@ -47,6 +47,13 @@ app.use(
     koaStatic(path.join(__dirname, '../public'), {
         maxAge: 1000 * 60 * 60 * 24 * 7,
         gzip: true,
+        // 禁用缓存控制头，让浏览器可以正常刷新
+        setHeaders: (res, path) => {
+            // 对于图片文件，设置较短的缓存时间，方便调试
+            if (/\.(jpg|jpeg|png|gif|webp)$/i.test(path)) {
+                res.setHeader('Cache-Control', 'public, max-age=3600');
+            }
+        },
     }),
 );
 

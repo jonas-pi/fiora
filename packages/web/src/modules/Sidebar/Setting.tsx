@@ -455,21 +455,58 @@ function Setting(props: SettingProps) {
                             <p className={Style.backgroundTip}>
                                 在此处粘贴您的 CSS 代码，点击"应用"按钮后生效。
                                 如果输入框为空时点击"应用"，将清除所有自定义 CSS。
-                                注意：错误的 CSS 可能导致界面异常，请谨慎使用。
+                                <br />
+                                <strong>支持的功能：</strong>
+                                <br />
+                                ✅ 背景、布局、聊天框、动画等几乎所有元素
+                                <br />
+                                ✅ @import（可导入外部样式表）
+                                <br />
+                                ✅ data URI（可内嵌图片、字体等）
+                                <br />
+                                ✅ CSS 变量、动画、过渡效果
+                                <br />
+                                ✅ 媒体查询（响应式设计）
+                                <br />
+                                <br />
+                                <strong>提示：</strong>建议使用浏览器开发者工具（F12）检查元素类名。
+                                详细的自定义指南请查看项目根目录的 <code>CSS自定义完整指南.md</code> 文件。
+                                <br />
+                                <br />
+                                <strong>注意：</strong>错误的 CSS 可能导致界面异常，请谨慎使用。建议先备份当前 CSS。
                             </p>
                             <textarea
                                 className={Style.cssTextarea}
                                 value={customCss}
                                 onChange={(e) => handleCustomCssChange(e.target.value)}
+                                id="custom-css-textarea"
+                                name="custom-css"
                                 placeholder={`/* 在此处粘贴您的 CSS 代码 */
+/* 支持几乎所有的 CSS 功能，包括背景、布局、动画等 */
 
-.component-button {
-    border-radius: 8px !important;
+/* 示例：修改聊天区域背景 */
+.chat {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* 示例：修改消息气泡样式 */
+.message .content {
+    border-radius: 12px !important;
+    padding: 10px 15px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 示例：添加动画效果 */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .message {
-    padding: 10px 15px !important;
-}`}
+    animation: slideIn 0.3s ease !important;
+}
+
+/* 更多示例和完整类名列表请查看 CSS自定义完整指南.md */`}
                                 spellCheck={false}
                             />
                             <div style={{ marginTop: '10px' }}>

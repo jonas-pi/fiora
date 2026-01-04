@@ -495,7 +495,7 @@ function ChatInput() {
                 if (content.length >= 1 && content.length <= 4) {
                     const [err, res] = await fetch(
                         'searchExpression',
-                        { keywords: content, limit: 10 },
+                        { keywords: content, limit: 15 }, // 增加默认数量从 10 到 15
                         { toast: false },
                     );
                     if (!err && $input.current?.value.trim() === content) {
@@ -700,6 +700,8 @@ function ChatInput() {
                     }}
                     onFocus={() => toggleInputFocus(true)}
                     onBlur={() => toggleInputFocus(false)}
+                    id="chat-input"
+                    name="chat-input"
                 />
 
                 {!isMobile && !inputFocus && (

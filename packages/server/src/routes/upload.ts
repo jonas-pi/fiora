@@ -17,7 +17,11 @@ const uploadMiddleware = koaBody({
     formidable: {
         maxFileSize: config.maxFileSize || 20 * 1024 * 1024, // 20MB（原 10MB）
         keepExtensions: true,
+        // 确保文件被保存到临时目录
+        uploadDir: undefined, // 使用系统默认临时目录
     },
+    // 确保解析文件
+    parsedMethods: ['POST', 'PUT', 'PATCH'],
 });
 
 /**
@@ -41,9 +45,19 @@ router.post('/api/upload', uploadMiddleware, async (ctx) => {
     try {
         // 从请求头获取 token（客户端需要从 socket 获取）
         const token = ctx.request.headers['x-auth-token'] as string;
+        // koa-body 会将文件放在 ctx.request.files 中，字段名是 FormData 中的字段名
+        // 如果 FormData 中使用 'file' 作为字段名，则文件在 ctx.request.files.file
         const file = ctx.request.files?.file;
         const fileName = ctx.request.body?.fileName as string;
         const isBase64 = ctx.request.body?.isBase64 === 'true';
+        
+        // 调试：检查所有可能的文件位置
+        logger.info('[upload] files structure:', {
+            filesKeys: ctx.request.files ? Object.keys(ctx.request.files) : [],
+            fileType: file ? typeof file : 'null',
+            fileIsArray: Array.isArray(file),
+            filePath: file ? ((file as any)?.filepath || (file as any)?.path) : 'null',
+        });
         
         // 调试日志：记录请求数据结构
         logger.info('[upload] request data:', {
@@ -53,9 +67,11 @@ router.post('/api/upload', uploadMiddleware, async (ctx) => {
             fileName,
             isBase64,
             fileType: file ? typeof file : 'null',
+            filePath: file ? (file as any)?.filepath : 'null',
         });
 
         if (!file && !isBase64) {
+            logger.error('[upload] missing file and isBase64 is false');
             ctx.status = 400;
             ctx.body = { error: '缺少文件' };
             return;
@@ -188,7 +204,45 @@ router.post('/api/upload', uploadMiddleware, async (ctx) => {
         }
 
         // 处理文件上传（Web端）
-        const filePath = (file as any).filepath;
+        // koa-body 使用 formidable，文件对象结构：
+        // - 单个文件：{ filepath: string, originalFilename: string, mimetype: string, size: number }
+        // - 多个文件：数组形式
+        let filePath: string | undefined;
+        let fileSize: number | undefined;
+        
+        if (Array.isArray(file)) {
+            // 如果是数组，取第一个文件
+            const firstFile = file[0] as any;
+            filePath = firstFile?.filepath || firstFile?.path;
+            fileSize = firstFile?.size;
+        } else if (file) {
+            // 单个文件对象
+            const fileObj = file as any;
+            filePath = fileObj?.filepath || fileObj?.path;
+            fileSize = fileObj?.size;
+        }
+        
+        if (!filePath) {
+            logger.error('[upload] file path is undefined');
+            logger.error('[upload] file object keys:', file ? Object.keys(file as any) : 'null');
+            logger.error('[upload] file object:', file);
+            logger.error('[upload] files object keys:', ctx.request.files ? Object.keys(ctx.request.files) : 'null');
+            logger.error('[upload] files object:', ctx.request.files);
+            ctx.status = 400;
+            ctx.body = { error: '文件对象无效，无法获取文件路径。请检查文件是否已正确上传。' };
+            return;
+        }
+        
+        logger.info('[upload] file path:', filePath, 'size:', fileSize);
+        
+        // 验证文件路径是否存在
+        const fileExists = await promisify(fs.exists)(filePath);
+        if (!fileExists) {
+            logger.error('[upload] file does not exist at path:', filePath);
+            ctx.status = 400;
+            ctx.body = { error: '临时文件不存在' };
+            return;
+        }
         if (config.aliyunOSS.enable) {
             const sts = await getSTS();
             const client = new OSS({

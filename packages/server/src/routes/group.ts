@@ -273,6 +273,10 @@ export async function changeGroupAvatar(
     );
 
     await Group.updateOne({ _id: groupId }, { avatar });
+    
+    // 通知群组所有成员头像已更新
+    ctx.socket.emit(groupId, 'changeGroupAvatar', { groupId, avatar });
+    
     return {};
 }
 

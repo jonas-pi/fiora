@@ -11,6 +11,8 @@ interface InputProps {
     onChange: (value: string) => void;
     onEnter?: (value: string) => void;
     onFocus?: () => void;
+    id?: string; // 添加 id 属性支持
+    name?: string; // 添加 name 属性支持
 }
 
 function Input(props: InputProps) {
@@ -22,6 +24,8 @@ function Input(props: InputProps) {
         onChange,
         onEnter = () => {},
         onFocus = () => {},
+        id,
+        name,
     } = props;
 
     function handleInput(e: any) {
@@ -65,6 +69,8 @@ function Input(props: InputProps) {
                 onCompositionStart={handleIMEStart}
                 onCompositionEnd={handleIMEEnd}
                 onFocus={onFocus}
+                id={id}
+                name={name}
             />
             <IconButton
                 className={Style.inputIconButton}
