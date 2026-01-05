@@ -29,6 +29,17 @@
 4. 点击"应用"按钮使更改生效
 5. 如需清除，清空文本框后点击"应用"
 
+### 推荐写法（强烈建议）
+
+1. **尽量把所有规则“限制在 `.app` 内”**，例如 `.app .chat { ... }`  
+   - 好处：不会误伤浏览器插件注入的 DOM、rc-dialog 内部结构或其它页面元素
+2. **优先用“稳定选择器”**（见下文“常用类名速查表”）  
+   - Fiora Web 使用了 CSS Modules，很多 `.less` 里声明的类在运行时会被 hash
+   - 但我们已为核心区域补了“稳定 class”（不带 hash），用户自定义 CSS 请优先使用这些
+3. **避免写过于宽泛的选择器**  
+   - 不推荐：`* { ... }`、`[role="button"] { ... }`、`.rc-dialog-wrap { ... }`
+   - 这些很容易把按钮、弹窗、下拉菜单等交互组件“写坏”
+
 ### CSS 优先级
 
 - 自定义 CSS 使用 `!important` 来覆盖默认样式
@@ -53,6 +64,15 @@
 **默认禁止的内容（安全优先）：**
 - ❌ 外部域名资源加载（例如 `@import https://...`、`url(https://...)`、`url(//...)`）
   - 原因：会产生对第三方的网络请求，可能带来隐私泄露与供应链风险
+
+### 受保护 UI（管理员入口/控制台）
+
+出于“防止误操作把自己锁死”的考虑，Fiora 会对部分关键 UI 做保护：
+
+- 管理员入口（侧边栏按钮）与管理员控制台 **不允许通过自定义 CSS 被隐藏/不可点击**
+  - 例如尝试用 `display: none`、`visibility: hidden`、`opacity: 0`、`pointer-events: none` 等方式隐藏，将不会生效
+
+这不会限制你对它们进行 **配色、圆角、阴影、动画等美化**，只是禁止“隐藏/禁用交互”这类危险操作。
 
 ---
 
@@ -921,19 +941,38 @@ textarea:focus {
 | 类名 | 说明 |
 |------|------|
 | `.app` | 应用根容器 |
+| `.blur` | 模糊背景层（毛玻璃底图层） |
+| `.child` | 主内容容器（聊天窗口外框） |
 | `.chat` | 聊天区域 |
 | `.sidebar` | 侧边栏 |
+| `.buttons` | 侧边栏按钮容器 |
+| `.avatar` | 头像（在消息/侧边栏等位置都可能出现） |
 | `.headerBar` | 聊天头部栏 |
 | `.message` | 消息容器 |
 | `.message.self` | 自己发送的消息 |
 | `.message .content` | 消息气泡 |
+| `.message .arrow` | 消息气泡箭头 |
+| `.message .nickname` | 消息昵称 |
+| `.message .time` | 消息时间 |
 | `.chatInput` | 聊天输入框容器 |
 | `.chatInput .input` | 输入框 |
+| `.form` | 输入框表单容器 |
+| `.iconButton` | 图标按钮（表情/发送/功能等） |
 | `.component-button` | 通用按钮 |
 | `.component-input` | 通用输入框 |
+| `.functionBarAndLinkmanList` | 左侧联系人区域外层 |
+| `.container` | 左侧联系人区域内层容器 |
 | `.linkmanList` | 联系人列表 |
 | `.rc-dialog` | 对话框 |
 | `.tag` | 用户标签（铭牌） |
+
+### 管理员相关（稳定选择器）
+
+以下选择器用于定位管理员 UI（**仅用于美化**，无法用于隐藏/禁用交互）：
+
+- `#admin-entry`：侧边栏管理员入口按钮（稳定 id）
+- `.admin-console-dialog`：管理员控制台弹窗本体（稳定 class）
+- `.admin-console-wrap`：管理员控制台弹窗 wrap（稳定 class）
 
 ---
 
