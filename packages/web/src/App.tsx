@@ -149,12 +149,13 @@ function App() {
 
     return (
         <div
-            className={`${Style.app} ${globalStyles}`}
+            // 追加全局 class（不走 CSS Modules 哈希），方便用户自定义 CSS 精确选择
+            className={`${Style.app} app ${globalStyles}`}
             style={style}
             ref={$app}
         >
-            <div className={Style.blur} style={blurStyle} />
-            <div className={Style.child} style={childStyle}>
+            <div className={`${Style.blur} blur`} style={blurStyle} />
+            <div className={`${Style.child} child`} style={childStyle}>
                 <ShowUserOrGroupInfoContext.Provider
                     value={(contextValue as unknown) as null}
                 >

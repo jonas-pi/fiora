@@ -106,11 +106,11 @@ function Chat() {
     }, [focus]);
 
     if (!hasUserInfo) {
-        return <div className={Style.chat} />;
+        return <div className={`${Style.chat} chat`} />;
     }
     if (!linkman) {
         return (
-            <div className={Style.chat}>
+            <div className={`${Style.chat} chat`}>
                 <HeaderBar id="" name="" type="" onClickFunction={() => {}} />
                 <div className={Style.noLinkman}>
                     <div className={Style.noLinkmanImage} />
@@ -143,7 +143,7 @@ function Chat() {
     }
 
     return (
-        <div className={Style.chat} {...aero}>
+        <div className={`${Style.chat} chat`} {...aero}>
             <HeaderBar
                 id={linkman._id}
                 name={linkman.name}

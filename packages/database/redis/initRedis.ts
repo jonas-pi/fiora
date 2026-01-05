@@ -24,6 +24,15 @@ export const expire = promisify(client.expire).bind(client);
 
 export const del = promisify(client.del.bind(client)) as (key: string) => Promise<number>;
 
+/**
+ * 自增计数
+ *
+ * 说明：
+ * - 一些业务（例如 Sticker 上传频率限制）需要原子自增
+ * - 之前 Redis 封装未暴露 incr，导致运行时报错：`Redis.incr is not a function`
+ */
+export const incr = promisify(client.incr).bind(client) as (key: string) => Promise<number>;
+
 export async function set(key: string, value: string, expireTime = Infinity) {
     await promisify(client.set).bind(client)(key, value);
     if (expireTime !== Infinity) {
@@ -75,6 +84,7 @@ export const Redis = {
     set,
     has,
     expire,
+    incr,
     keys,
     del,
     Minute,

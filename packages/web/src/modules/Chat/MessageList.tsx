@@ -151,7 +151,8 @@ function MessageList() {
     return (
         <div className={styles.container}>
             <div
-                className={`${Style.messageList} show-scrollbar`}
+                // 追加全局 class 便于自定义 CSS（.messageList）
+                className={`${Style.messageList} messageList show-scrollbar`}
                 onScroll={handleScroll}
                 ref={$list}
             >

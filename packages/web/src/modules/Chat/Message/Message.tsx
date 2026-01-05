@@ -199,13 +199,22 @@ class Message extends Component<MessageProps, MessageState> {
 
         return (
             <div
-                className={`${Style.message} ${isSelf ? Style.self : ''}`}
+                /**
+                 * 追加全局 class，便于用户自定义 CSS：
+                 * - `.message`：所有消息容器
+                 * - `.self`：自己发送的消息（配合 `.message.self` 使用）
+                 *
+                 * 说明：
+                 * - Style.* 仍然保留，用于默认主题
+                 * - 额外添加的 class 不影响现有逻辑，但大幅提升可定制性
+                 */
+                className={`${Style.message} message ${isSelf ? `${Style.self} self` : ''}`}
                 ref={this.$container}
             >
                 <ShowUserOrGroupInfoContext.Consumer>
                     {(context) => (
                         <Avatar
-                            className={Style.avatar}
+                            className={`${Style.avatar} avatar`}
                             src={avatar}
                             size={44}
                             onClick={() =>
@@ -215,29 +224,29 @@ class Message extends Component<MessageProps, MessageState> {
                         />
                     )}
                 </ShowUserOrGroupInfoContext.Consumer>
-                <div className={Style.right}>
-                    <div className={Style.nicknameTimeBlock}>
+                <div className={`${Style.right} right`}>
+                    <div className={`${Style.nicknameTimeBlock} nicknameTimeBlock`}>
                         {tag && (
                             <span
-                                className={Style.tag}
+                                className={`${Style.tag} tag`}
                                 style={{ backgroundColor: tagColor }}
                             >
                                 {tag}
                             </span>
                         )}
-                        <span className={Style.nickname}>{username}</span>
-                        <span className={Style.time}>{this.formatTime()}</span>
+                        <span className={`${Style.nickname} nickname`}>{username}</span>
+                        <span className={`${Style.time} time`}>{this.formatTime()}</span>
                     </div>
                     <div
-                        className={Style.contentButtonBlock}
+                        className={`${Style.contentButtonBlock} contentButtonBlock`}
                         onMouseEnter={this.handleMouseEnter}
                         onMouseLeave={this.handleMouseLeave}
                     >
-                        <div className={Style.content}>
+                        <div className={`${Style.content} content`}>
                             {this.renderContent()}
                         </div>
                         {showButtonList && (
-                            <div className={Style.buttonList}>
+                            <div className={`${Style.buttonList} buttonList`}>
                                 <Tooltip
                                     placement={isSelf ? 'left' : 'right'}
                                     mouseEnterDelay={0.3}
@@ -245,7 +254,7 @@ class Message extends Component<MessageProps, MessageState> {
                                 >
                                     <div>
                                         <IconButton
-                                            className={Style.button}
+                                            className={`${Style.button} button`}
                                             icon="recall"
                                             iconSize={16}
                                             width={20}
@@ -257,7 +266,7 @@ class Message extends Component<MessageProps, MessageState> {
                             </div>
                         )}
                     </div>
-                    <div className={Style.arrow} />
+                    <div className={`${Style.arrow} arrow`} />
                 </div>
             </div>
         );

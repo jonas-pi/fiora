@@ -86,6 +86,40 @@ function ChatInput() {
         { image: string; width: number; height: number }[]
     >([]);
 
+    /**
+     * 输入变化时尝试触发“根据输入内容推荐表情”
+     *
+     * 为什么要加这个：
+     * - 旧逻辑挂在 onKeyDown 上，对中文输入法（IME）不友好：
+     *   组合输入期间 inputIME=true 会阻止搜索；组合结束后往往不会再触发 keydown，
+     *   导致“推荐表情功能看起来完全无效”（尤其是中文用户）
+     * - onChange / onCompositionEnd 能覆盖：键盘输入、IME、粘贴、移动端输入等场景
+     *
+     * 安全与性能：
+     * - 真实请求由 getExpressionsFromContent 内部的 500ms 防抖控制
+     * - toast 已在 fetch 调用处关闭，不会打扰用户
+     */
+    function handleInputChange() {
+        // 未开启功能直接跳过
+        if (!enableSearchExpression) {
+            return;
+        }
+        // 正在 IME 组合输入时不触发（避免拿到拼音/不完整内容）
+        if (inputIME) {
+            return;
+        }
+        // @ 模式下不要抢占 UI（避免与 @ 提示冲突）
+        if (at.enable) {
+            return;
+        }
+        if ($input.current?.value) {
+            getExpressionsFromContent();
+        } else {
+            clearTimeout(searchExpressionTimer);
+            setExpressions([]);
+        }
+    }
+
     /** 全局输入框聚焦快捷键 */
     function focusInput(e: KeyboardEvent) {
         const $target: HTMLElement = e.target as HTMLElement;
@@ -632,7 +666,7 @@ function ChatInput() {
     }
 
     return (
-        <div className={Style.chatInput} {...aero}>
+        <div className={`${Style.chatInput} chatInput`} {...aero}>
             <Dropdown
                 trigger={['click']}
                 visible={expressionDialog}
@@ -649,7 +683,7 @@ function ChatInput() {
                 placement="topLeft"
             >
                 <IconButton
-                    className={Style.iconButton}
+                    className={`${Style.iconButton} iconButton`}
                     width={44}
                     height={44}
                     icon="expression"
@@ -672,7 +706,7 @@ function ChatInput() {
                 placement="topLeft"
             >
                 <IconButton
-                    className={Style.iconButton}
+                    className={`${Style.iconButton} iconButton`}
                     width={44}
                     height={44}
                     icon="feature"
@@ -680,23 +714,27 @@ function ChatInput() {
                 />
             </Dropdown>
             <form
-                className={Style.form}
+                className={`${Style.form} form`}
                 autoComplete="off"
                 onSubmit={(e) => e.preventDefault()}
             >
                 <input
-                    className={Style.input}
+                    className={`${Style.input} input`}
                     type="text"
                     placeholder="随便聊点啥吧, 不要无意义刷屏~~"
                     maxLength={2048}
                     ref={$input}
                     onKeyDown={handleInputKeyDown}
+                    onChange={handleInputChange}
                     onPaste={handlePaste}
                     onCompositionStart={() => {
                         inputIME = true;
                     }}
                     onCompositionEnd={() => {
                         inputIME = false;
+                        // 组合输入结束后补触发一次（否则中文输入很容易永远不触发搜索）
+                        // 用 setTimeout 确保 input.value 已经更新到最终文本
+                        setTimeout(() => handleInputChange(), 0);
                     }}
                     onFocus={() => toggleInputFocus(true)}
                     onBlur={() => toggleInputFocus(false)}
@@ -721,7 +759,7 @@ function ChatInput() {
                 )}
             </form>
             <IconButton
-                className={Style.iconButton}
+                className={`${Style.iconButton} iconButton`}
                 width={44}
                 height={44}
                 icon="send"
@@ -729,17 +767,17 @@ function ChatInput() {
                 onClick={sendTextMessage}
             />
 
-            <div className={Style.atPanel}>
+            <div className={`${Style.atPanel} atPanel`}>
                 {at.enable &&
                     getSuggestion().map((member) => (
                         <div
-                            className={Style.atUserList}
+                            className={`${Style.atUserList} atUserList`}
                             key={member.user._id}
                             onClick={() => replaceAt(member.user.username)}
                             role="button"
                         >
                             <Avatar size={24} src={member.user.avatar} />
-                            <p className={Style.atText}>
+                            <p className={`${Style.atText} atText`}>
                                 {member.user.username}
                             </p>
                         </div>

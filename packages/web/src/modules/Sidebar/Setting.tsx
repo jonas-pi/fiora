@@ -460,9 +460,11 @@ function Setting(props: SettingProps) {
                                 <br />
                                 ✅ 背景、布局、聊天框、动画等几乎所有元素
                                 <br />
-                                ✅ @import（可导入外部样式表）
-                                <br />
                                 ✅ data URI（可内嵌图片、字体等）
+                                <br />
+                                ✅ 同源/相对路径资源（例如先上传背景图，再用 <code>/BackgroundImage/...</code> 引用）
+                                <br />
+                                ❌ 出于安全考虑，默认禁止从外部域名 <code>@import</code> / <code>url(http/https/..)</code> 加载资源
                                 <br />
                                 ✅ CSS 变量、动画、过渡效果
                                 <br />

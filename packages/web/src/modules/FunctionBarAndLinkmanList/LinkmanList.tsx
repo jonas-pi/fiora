@@ -53,7 +53,7 @@ function LinkmanList() {
     }
 
     return (
-        <div className={Style.linkmanList}>
+        <div className={`${Style.linkmanList} linkmanList`}>
             {Object.values(linkmans)
                 .sort(sort)
                 .map((linkman) => renderLinkman(linkman))}

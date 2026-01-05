@@ -57,7 +57,7 @@ function HeaderBar(props: Props) {
     }
 
     return (
-        <div className={Style.headerBar} {...aero}>
+        <div className={`${Style.headerBar} headerBar`} {...aero}>
             {isMobile && (
                 <div className={Style.buttonContainer}>
                     <IconButton
@@ -83,7 +83,7 @@ function HeaderBar(props: Props) {
                     />
                 </div>
             )}
-            <h2 className={Style.name}>
+            <h2 className={`${Style.name} name`}>
                 {name && (
                     <span>
                         {name}{' '}
@@ -108,7 +108,7 @@ function HeaderBar(props: Props) {
             </h2>
             {isLogin && type ? (
                 <div
-                    className={`${Style.buttonContainer} ${Style.rightButtonContainer}`}
+                    className={`${Style.buttonContainer} buttonContainer ${Style.rightButtonContainer}`}
                 >
                     {type === 'group' && (
                         <CopyToClipboard
@@ -132,7 +132,7 @@ function HeaderBar(props: Props) {
                     />
                 </div>
             ) : (
-                <div className={Style.buttonContainer} />
+                <div className={`${Style.buttonContainer} buttonContainer`} />
             )}
         </div>
     );

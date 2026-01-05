@@ -279,7 +279,25 @@ function Admin(props: AdminProps) {
     }
 
     return (
-        <Dialog className={Style.admin} visible={visible} title="管理员控制台" onClose={onClose}>
+        <Dialog
+            /**
+             * 额外添加稳定 class / wrapClassName：
+             * - 用于“保护管理员控制台”不被自定义 CSS 隐藏
+             * - 自定义 CSS 注入在 <head>，若用户写了过于激进的规则（如 .rc-dialog-wrap{display:none}）
+             *   会导致管理员控制台“消失”
+             */
+            className={`${Style.admin} admin-console-dialog ${visible ? 'admin-console-visible' : ''}`}
+            /**
+             * rc-dialog 支持 wrapClassName，用于 rc-dialog-wrap 的 class
+             * 关键点：用 `admin-console-visible` 标记“打开态”
+             * - 不能依赖 aria-hidden（你截图里 aria-hidden 为空）
+             * - 保护样式只对“打开态”生效，避免影响关闭按钮
+             */
+            wrapClassName={`admin-console-wrap ${visible ? 'admin-console-visible' : ''}`}
+            visible={visible}
+            title="管理员控制台"
+            onClose={onClose}
+        >
             <div className={Common.container}>
                 <div className={Common.block}>
                     <p className={Common.title}>全局开关</p>

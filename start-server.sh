@@ -17,5 +17,12 @@ mkdir -p /opt/fiora/tmp
 cd /opt/fiora/packages/server
 
 # 启动服务
-exec NODE_ENV=production DOTENV_CONFIG_PATH=../../.env npx ts-node -r dotenv/config --transpile-only src/main.ts "$@"
+#
+# 注意：bash 的 `exec` 不能直接写成 `exec KEY=VALUE cmd ...`
+# 正确写法是：
+# - `KEY=VALUE exec cmd ...`（先设置环境变量，再 exec）
+# - 或 `exec env KEY=VALUE cmd ...`
+#
+# 这里用 `env` 的方式最直观，也避免不同 shell 的兼容性差异。
+exec env NODE_ENV=production DOTENV_CONFIG_PATH=../../.env npx ts-node -r dotenv/config --transpile-only src/main.ts "$@"
 

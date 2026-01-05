@@ -209,7 +209,15 @@ function Expression(props: ExpressionProps) {
                 size,
             });
 
-            const created: StickerItem | undefined = res?.sticker;
+            /**
+             * 兼容服务端返回格式：
+             * - 新版：{ sticker: StickerItem }
+             * - 旧版/自定义分支：直接返回 StickerItem
+             *
+             * 用户反馈“服务端返回异常”通常就是这里取不到 sticker 导致的，
+             * 做兼容可以减少前后端版本不一致带来的问题。
+             */
+            const created: StickerItem | undefined = (res?.sticker || res) as any;
             if (!created || !validateStickerMeta(created)) {
                 Message.error('添加表情包失败（服务端返回异常）');
                 return;

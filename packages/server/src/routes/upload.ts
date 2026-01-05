@@ -34,7 +34,18 @@ const uploadMiddleware = koaBody({
 router.options('/api/upload', async (ctx) => {
     ctx.set('Access-Control-Allow-Origin', ctx.headers.origin || '*');
     ctx.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    ctx.set('Access-Control-Allow-Headers', 'Content-Type');
+    /**
+     * CORS 预检放行必要请求头
+     *
+     * 关键点：
+     * - Web 端上传会带上 `x-auth-token`（见 web/src/utils/uploadFileWithProgress.ts）
+     * - 浏览器会在跨域时先发 OPTIONS 预检，若服务端未在 Access-Control-Allow-Headers 中声明该 header
+     *   则预检失败，表现为“上传一直无法完成/直接报 CORS”
+     *
+     * 安全性：
+     * - 仅放行上传所需的 header，不开放任意 header
+     */
+    ctx.set('Access-Control-Allow-Headers', 'Content-Type, x-auth-token');
     ctx.status = 204;
 });
 

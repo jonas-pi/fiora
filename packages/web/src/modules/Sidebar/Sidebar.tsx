@@ -83,21 +83,21 @@ function Sidebar() {
 
     return (
         <>
-            <div className={Style.sidebar} {...aero}>
+            <div id="sidebar-root" className={`${Style.sidebar} sidebar`} {...aero}>
                 {isLogin && avatar && (
                     <Avatar
-                        className={Style.avatar}
+                        className={`${Style.avatar} avatar`}
                         src={avatar}
                         onClick={() => toggleSelfInfoDialogVisible(true)}
                     />
                 )}
                 {isLogin && (
                     <OnlineStatus
-                        className={Style.status}
+                        className={`${Style.status} status`}
                         status={isConnect ? 'online' : 'offline'}
                     />
                 )}
-                <div className={Style.buttons}>
+                <div id="sidebar-buttons" className={`${Style.buttons} buttons`}>
                     {isLogin &&
                         isAdmin &&
                         renderTooltip(
@@ -107,6 +107,8 @@ function Sidebar() {
                                 height={40}
                                 icon="administrator"
                                 iconSize={28}
+                                // 稳定 id：用于“保护管理员入口”不被自定义 CSS 隐藏
+                                id="admin-entry"
                                 onClick={() => toggleAdminDialogVisible(true)}
                             />,
                         )}
@@ -117,7 +119,7 @@ function Sidebar() {
                     >
                         <a
                             className={Style.linkButton}
-                            href="https://github.com/yinxin630/fiora"
+                            href="https://github.com/jonas-pi/fiora"
                             target="_black"
                             rel="noopener noreferrer"
                         >

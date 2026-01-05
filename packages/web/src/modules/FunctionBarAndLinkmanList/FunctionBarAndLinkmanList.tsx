@@ -30,11 +30,11 @@ function FunctionBarAndLinkmanList() {
 
     return (
         <div
-            className={Style.functionBarAndLinkmanList}
+            className={`${Style.functionBarAndLinkmanList} functionBarAndLinkmanList`}
             onClick={handleClick}
             role="button"
         >
-            <div className={Style.container} {...aero}>
+            <div className={`${Style.container} container`} {...aero}>
                 {isLogin && <FunctionBar />}
                 <LinkmanList />
             </div>
