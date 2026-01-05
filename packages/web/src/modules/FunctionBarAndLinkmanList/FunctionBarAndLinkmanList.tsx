@@ -33,6 +33,8 @@ function FunctionBarAndLinkmanList() {
             className={`${Style.functionBarAndLinkmanList} functionBarAndLinkmanList`}
             onClick={handleClick}
             role="button"
+            // 稳定选择器：联系人区（功能栏 + 联系人列表）
+            data-fiora="linkman-area"
         >
             <div className={`${Style.container} container`} {...aero}>
                 {isLogin && <FunctionBar />}

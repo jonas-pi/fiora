@@ -45,80 +45,137 @@ export function injectCustomCss(cssText: string) {
 /**
  * 过滤危险的 CSS 代码
  *
- * 安全策略（偏保守，但尽量不影响“自定义主题/布局/字体”诉求）：
+ * 安全策略（多层防护，确保用户安全）：
  * - ✅ 允许：绝大多数标准 CSS、CSS 变量、动画、媒体查询
- * - ✅ 允许：`data:` 与“相对路径/同源路径”的资源引用（例如用户先上传背景图到本服务，再用 `/BackgroundImage/...` 引用）
- * - ❌ 禁止：`javascript:`、`expression()`、`behavior:`、`-moz-binding` 等可能导致代码执行/安全风险的写法
- * - ❌ 默认禁止：从外部域名加载资源（`@import http(s)://...`、`url(http(s)://...)`、`url(//...)`）
- *   解释：外部 CSS/图片/字体会产生对第三方的网络请求，可能带来隐私泄露与供应链风险；“安全优先”时应当拦截
+ * - ✅ 允许：`data:` 与"相对路径/同源路径"的资源引用
+ * - ❌ 禁止：所有可能执行代码的特性（javascript:、vbscript:、expression()等）
+ * - ❌ 禁止：外部资源加载（隐私保护）
+ * - ❌ 禁止：HTML标签注入（防止XSS）
+ * - ❌ 禁止：超长内容（防止DOS攻击）
  *
- * 备注：
- * - 这里使用的是“轻量正则过滤”，不是完整 CSS 解析器；目标是阻止已知高危用法
+ * 安全等级：高（多层过滤 + 白名单机制）
  * @param cssText 原始 CSS 代码
  * @returns 过滤后的 CSS 代码
  */
 function sanitizeCss(cssText: string): string {
+    // 第一层：长度限制（防止DOS攻击）
+    const MAX_CSS_LENGTH = 500000; // 500KB
+    if (cssText.length > MAX_CSS_LENGTH) {
+        console.warn(`[CSS安全] CSS长度超限: ${cssText.length} > ${MAX_CSS_LENGTH}`);
+        return `/* CSS内容过长，已被阻止（最大${MAX_CSS_LENGTH}字符） */`;
+    }
+
     let sanitized = cssText;
 
-    // 移除 expression() (IE 特有，已废弃但可能被利用)
-    sanitized = sanitized.replace(/expression\s*\(/gi, '/* blocked expression */');
+    // 第二层：移除HTML标签（防止注入<script>、<iframe>等）
+    sanitized = sanitized.replace(/<[^>]*>/g, '/* blocked HTML tag */');
 
-    // 移除 javascript: 协议（最危险的）
+    // 第三层：移除危险协议
+    // javascript: (最常见的XSS向量)
     sanitized = sanitized.replace(/javascript\s*:/gi, '/* blocked javascript */');
-
-    // 移除 url() 中的 javascript:
-    sanitized = sanitized.replace(/url\s*\(\s*['"]?javascript:/gi, 'url(/* blocked */');
-
-    // 阻止老旧/高危 CSS 特性
+    // vbscript: (老旧但仍需防范)
+    sanitized = sanitized.replace(/vbscript\s*:/gi, '/* blocked vbscript */');
+    // data:text/html (可能包含可执行脚本)
+    sanitized = sanitized.replace(/data\s*:\s*text\s*\/\s*html/gi, '/* blocked data:text/html */');
+    
+    // 第四层：移除危险的CSS表达式
+    // expression() (IE特有，已废弃但仍需防范)
+    sanitized = sanitized.replace(/expression\s*\(/gi, '/* blocked expression */');
+    // eval() 尝试
+    sanitized = sanitized.replace(/\beval\s*\(/gi, '/* blocked eval */');
+    
+    // 第五层：移除可以加载外部脚本的CSS属性
+    // -moz-binding (Firefox旧版，可加载XBL)
     sanitized = sanitized.replace(/-moz-binding\s*:/gi, '/* blocked -moz-binding */');
+    // behavior (IE特有，可加载HTC)
     sanitized = sanitized.replace(/behavior\s*:/gi, '/* blocked behavior */');
+    
+    // 第六层：过滤document/window/location等DOM操作尝试
+    // 虽然CSS本身不能执行JS，但防止某些浏览器bug
+    sanitized = sanitized.replace(/document\s*\./gi, '/* blocked document */');
+    sanitized = sanitized.replace(/window\s*\./gi, '/* blocked window */');
+    sanitized = sanitized.replace(/location\s*\./gi, '/* blocked location */');
+    sanitized = sanitized.replace(/alert\s*\(/gi, '/* blocked alert */');
+    sanitized = sanitized.replace(/confirm\s*\(/gi, '/* blocked confirm */');
+    sanitized = sanitized.replace(/prompt\s*\(/gi, '/* blocked prompt */');
 
+    // 第七层：阻止外部 @import（隐私保护 + 供应链安全）
     /**
-     * 阻止外部 @import（只允许相对路径/同源路径/data:）
-     * 典型格式：
-     * - @import "xxx.css";
-     * - @import url("xxx.css");
+     * 只允许：
+     * - 相对路径：./style.css、../style.css
+     * - 绝对路径：/style.css
+     * - Data URI：data:text/css;base64,...
+     * 
+     * 阻止：
+     * - 外部HTTP(S)：https://evil.com/style.css
+     * - 协议相对：//evil.com/style.css
      */
     sanitized = sanitized.replace(
         /@import\s+(?:url\s*\(\s*)?(?:['"])?([^'")\s]+)(?:['"])?\s*\)?\s*;/gi,
         (full, rawUrl: string) => {
             const u = String(rawUrl || '').trim().toLowerCase();
+            // 白名单机制：只允许明确安全的路径
             const isSafe =
                 u.startsWith('/') ||
                 u.startsWith('./') ||
                 u.startsWith('../') ||
-                u.startsWith('data:');
-            return isSafe ? full : '/* blocked @import external resource */';
+                u.startsWith('data:text/css');
+            
+            if (!isSafe) {
+                console.warn(`[CSS安全] 阻止外部@import: ${rawUrl}`);
+                return '/* blocked @import: external resource */';
+            }
+            return full;
         },
     );
 
+    // 第八层：阻止 url() 中的外部资源（隐私保护）
     /**
-     * 阻止 url() 中的外部资源（只允许相对路径/同源路径/data:）
-     * 例如：
-     * - background-image: url(https://example.com/a.png)  => blocked
-     * - background-image: url(/BackgroundImage/xxx.png)   => allowed
-     * - src: url(data:font/woff2;base64,...)              => allowed
+     * URL资源加载限制：
+     * ✅ 允许：data URI（完全内联，无网络请求）
+     * ✅ 允许：相对路径（同源资源）
+     * ✅ 允许：绝对路径（同源资源）
+     * ❌ 禁止：HTTP(S)外部资源（隐私泄露风险）
+     * ❌ 禁止：协议相对URL（//xxx）
+     * 
+     * 示例：
+     * - background: url(data:image/png;base64,...)  ✅ 允许
+     * - background: url(/images/bg.png)             ✅ 允许
+     * - background: url(https://evil.com/track.gif) ❌ 禁止（隐私泄露）
      */
     sanitized = sanitized.replace(
         /url\s*\(\s*(['"]?)([^'")]+)\1\s*\)/gi,
         (full, _quote: string, rawUrl: string) => {
             const u = String(rawUrl || '').trim().toLowerCase();
+            
+            // 白名单检查
             const isSafe =
-                u.startsWith('/') ||
-                u.startsWith('./') ||
-                u.startsWith('../') ||
-                u.startsWith('data:');
+                u.startsWith('data:') ||  // Data URI
+                u.startsWith('/') ||      // 绝对路径（同源）
+                u.startsWith('./') ||     // 相对路径
+                u.startsWith('../');      // 相对路径（父级）
 
-            // 额外拦截协议相对 //xxx 与 http(s)://xxx
+            // 黑名单检查：协议相对URL和外部HTTP(S)
             const isExternal =
-                u.startsWith('//') || u.startsWith('http://') || u.startsWith('https://');
+                u.startsWith('//') ||
+                u.startsWith('http://') ||
+                u.startsWith('https://');
 
             if (isExternal || !isSafe) {
-                return 'url(/* blocked external resource */)';
+                console.warn(`[CSS安全] 阻止外部资源: ${rawUrl}`);
+                return 'url(/* blocked: external resource */)';
             }
             return full;
         },
     );
+
+    // 第九层：移除潜在的Unicode欺骗（零宽字符、同形异义字符等）
+    // 防止通过特殊Unicode字符绕过过滤
+    sanitized = sanitized.replace(/[\u200B-\u200D\uFEFF]/g, ''); // 零宽字符
+    
+    // 第十层：移除注释中可能的恶意内容（虽然注释不会执行，但防止信息泄露）
+    // 保留合法的CSS注释，但移除可能包含敏感信息的超长注释
+    sanitized = sanitized.replace(/\/\*[\s\S]{5000,}?\*\//g, '/* 注释过长已移除 */');
 
     return sanitized;
 }

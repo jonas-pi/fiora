@@ -155,6 +155,8 @@ function MessageList() {
                 className={`${Style.messageList} messageList show-scrollbar`}
                 onScroll={handleScroll}
                 ref={$list}
+                // 稳定选择器：消息列表容器
+                data-fiora="message-list"
             >
                 {Object.values(messages).map((message) =>
                     renderMessage(message),

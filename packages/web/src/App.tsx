@@ -149,13 +149,18 @@ function App() {
 
     return (
         <div
-            // 追加全局 class（不走 CSS Modules 哈希），方便用户自定义 CSS 精确选择
+            // 追加全局 class（不走 CSS Modules 哈希）+ data-fiora 属性，方便用户自定义 CSS 精确选择
             className={`${Style.app} app ${globalStyles}`}
             style={style}
             ref={$app}
+            data-fiora="app"
         >
             <div className={`${Style.blur} blur`} style={blurStyle} />
-            <div className={`${Style.child} child`} style={childStyle}>
+            <div 
+                className={`${Style.child} child`} 
+                style={childStyle}
+                data-fiora="main-container"
+            >
                 <ShowUserOrGroupInfoContext.Provider
                     value={(contextValue as unknown) as null}
                 >

@@ -666,7 +666,12 @@ function ChatInput() {
     }
 
     return (
-        <div className={`${Style.chatInput} chatInput`} {...aero}>
+        <div
+            className={`${Style.chatInput} chatInput`}
+            // 稳定选择器：聊天输入区
+            data-fiora="chat-input"
+            {...aero}
+        >
             <Dropdown
                 trigger={['click']}
                 visible={expressionDialog}
@@ -717,6 +722,7 @@ function ChatInput() {
                 className={`${Style.form} form`}
                 autoComplete="off"
                 onSubmit={(e) => e.preventDefault()}
+                data-fiora="chat-input-form"
             >
                 <input
                     className={`${Style.input} input`}
@@ -740,6 +746,8 @@ function ChatInput() {
                     onBlur={() => toggleInputFocus(false)}
                     id="chat-input"
                     name="chat-input"
+                    // 稳定选择器：输入框本体
+                    data-fiora="chat-input-field"
                 />
 
                 {!isMobile && !inputFocus && (
@@ -754,7 +762,11 @@ function ChatInput() {
                             </span>
                         }
                     >
-                        <i className={`iconfont icon-about ${Style.tooltip}`} />
+                        <i
+                            className={`iconfont icon-about ${Style.tooltip}`}
+                            // 稳定选择器：输入框提示按钮（i）
+                            data-fiora="chat-input-hint"
+                        />
                     </Tooltip>
                 )}
             </form>

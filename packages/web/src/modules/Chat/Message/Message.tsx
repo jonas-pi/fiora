@@ -210,6 +210,10 @@ class Message extends Component<MessageProps, MessageState> {
                  */
                 className={`${Style.message} message ${isSelf ? `${Style.self} self` : ''}`}
                 ref={this.$container}
+                // 稳定选择器（token 形式，便于用 [data-fiora~="..."] 精准选择）
+                // - message-item：所有消息根节点
+                // - message-self / message-other：区分自己/他人消息（可用于样式/动画）
+                data-fiora={`message-item ${isSelf ? 'message-self' : 'message-other'}`}
             >
                 <ShowUserOrGroupInfoContext.Consumer>
                     {(context) => (
@@ -217,6 +221,7 @@ class Message extends Component<MessageProps, MessageState> {
                             className={`${Style.avatar} avatar`}
                             src={avatar}
                             size={44}
+                            data-fiora="message-avatar"
                             onClick={() =>
                                 // @ts-ignore
                                 this.handleClickAvatar(context.showUserInfo)
@@ -234,15 +239,19 @@ class Message extends Component<MessageProps, MessageState> {
                                 {tag}
                             </span>
                         )}
-                        <span className={`${Style.nickname} nickname`}>{username}</span>
-                        <span className={`${Style.time} time`}>{this.formatTime()}</span>
+                        <span className={`${Style.nickname} nickname`} data-fiora="message-username">
+                            {username}
+                        </span>
+                        <span className={`${Style.time} time`} data-fiora="message-time">
+                            {this.formatTime()}
+                        </span>
                     </div>
                     <div
                         className={`${Style.contentButtonBlock} contentButtonBlock`}
                         onMouseEnter={this.handleMouseEnter}
                         onMouseLeave={this.handleMouseLeave}
                     >
-                        <div className={`${Style.content} content`}>
+                        <div className={`${Style.content} content`} data-fiora="message-content">
                             {this.renderContent()}
                         </div>
                         {showButtonList && (
@@ -266,8 +275,17 @@ class Message extends Component<MessageProps, MessageState> {
                             </div>
                         )}
                     </div>
-                    <div className={`${Style.arrow} arrow`} />
+                    <div className={`${Style.arrow} arrow`} data-fiora="message-arrow" />
                 </div>
+            </div>
+        );
+    }
+}
+
+export default connect((state: State) => ({
+    isAdmin: !!(state.user && state.user.isAdmin),
+}))(Message);
+
             </div>
         );
     }

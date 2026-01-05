@@ -1,0 +1,724 @@
+/**
+ * Fiora 预设主题：KOOK 6.0 深色风格（稳定版）
+ * 
+ * 特点：
+ * - 基于CSS变量 + 实际存在的类名
+ * - 深色背景，高对比度文字
+ * - 扁平化设计，KOOK风格
+ * - 紧凑布局，高信息密度
+ * - 不依赖data-fiora属性，当前即可使用
+ * 
+ * 使用方法：
+ * 将此文件的全部内容复制到"自定义CSS"框中，点击保存即可
+ * 
+ * 更新日期：2026-01-05
+ */
+
+/* ========== 1. CSS变量定义（核心主题色） ========== */
+:root {
+    /* 背景色系 - KOOK深色风格 */
+    --fiora-bg-primary: #0a0a0a;          /* 最外层深黑色 */
+    --fiora-bg-secondary: #1e1f22;        /* 侧边栏 */
+    --fiora-bg-tertiary: #25272A;         /* 联系人列表/聊天区 */
+    --fiora-bg-overlay: rgba(0, 0, 0, 0.75);
+    
+    /* 文字颜色 */
+    --fiora-text-primary: #ffffff;
+    --fiora-text-secondary: rgba(255, 255, 255, 0.75);
+    --fiora-text-tertiary: #949ba4;       /* KOOK标准灰色 */
+    
+    /* 主色调 - KOOK绿色 */
+    --fiora-primary-color: #23a55a;
+    --fiora-primary-hover: #1f9250;
+    --fiora-primary-active: #1b7f46;
+    
+    /* 边框 */
+    --fiora-border-color: rgba(255, 255, 255, 0.10);
+    
+    /* 组件颜色 */
+    --fiora-sidebar-bg: #1e1f22;
+    --fiora-sidebar-icon-color: rgba(255, 255, 255, 0.5);
+    --fiora-sidebar-icon-hover: rgba(255, 255, 255, 0.75);
+    --fiora-sidebar-icon-active: #ffffff;
+    
+    --fiora-linkman-list-bg: #25272A;
+    --fiora-linkman-item-hover-bg: rgba(255, 255, 255, 0.04);
+    --fiora-linkman-item-active-bg: rgba(255, 255, 255, 0.06);
+    
+    --fiora-chat-bg: #25272A;
+    --fiora-chat-header-bg: #25272A;
+    --fiora-chat-input-bg: #1e1f22;
+    
+    --fiora-message-self-bg: rgba(35, 165, 90, 0.85);
+    --fiora-message-other-bg: rgba(255, 255, 255, 0.10);
+    
+    --fiora-input-bg: #36383D;            /* KOOK输入框颜色 */
+    --fiora-input-border: rgba(255, 255, 255, 0.10);
+    
+    --fiora-dialog-bg: #2b2d31;
+    --fiora-dialog-mask-bg: rgba(0, 0, 0, 0.75);
+    
+    /* 尺寸变量 */
+    --fiora-container-width: 95%;
+    --fiora-container-max-width: 1200px;
+    --fiora-container-height: 85vh;
+    --fiora-sidebar-width: 70px;
+    --fiora-linkman-list-width: 290px;
+    
+    /* 圆角 - KOOK扁平风格 */
+    --fiora-border-radius-sm: 3px;
+    --fiora-border-radius-md: 8px;
+    --fiora-border-radius-lg: 12px;
+    --fiora-border-radius-xl: 16px;
+}
+
+/* ========== 2. 整体布局 ========== */
+
+/* 大背景深色 */
+html, body {
+    background: var(--fiora-bg-primary) !important;
+}
+
+.app {
+    background: var(--fiora-bg-primary) !important;
+    min-height: 100vh !important;
+}
+
+/* 主容器居中 + 彩色光晕 */
+.app .child {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: var(--fiora-container-width) !important;
+    max-width: var(--fiora-container-max-width) !important;
+    height: var(--fiora-container-height) !important;
+    
+    /* 多层彩色阴影（围绕窗口一圈） */
+    box-shadow: 
+        0 0 60px 20px rgba(139, 92, 246, 0.3),
+        0 0 100px 40px rgba(59, 130, 246, 0.2),
+        0 0 140px 60px rgba(236, 72, 153, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.6) !important;
+    
+    border-radius: var(--fiora-border-radius-xl) !important;
+    overflow: hidden !important;
+}
+
+/* ========== 3. 侧边栏 ========== */
+
+.app .sidebar {
+    background: var(--fiora-sidebar-bg) !important;
+    width: var(--fiora-sidebar-width) !important;
+}
+
+.app .sidebar .iconfont {
+    color: var(--fiora-sidebar-icon-color) !important;
+    transition: all 0.3s ease !important;
+}
+
+.app .sidebar .iconfont:hover {
+    color: var(--fiora-sidebar-icon-hover) !important;
+}
+
+.app .sidebar .active .iconfont {
+    color: var(--fiora-sidebar-icon-active) !important;
+}
+
+/* ========== 4. 联系人列表 ========== */
+
+.app .functionBarAndLinkmanList {
+    background: var(--fiora-linkman-list-bg) !important;
+    width: var(--fiora-linkman-list-width) !important;
+    border-right: 1px solid var(--fiora-border-color) !important;
+}
+
+/* 功能栏 */
+.app .functionBar {
+    background: var(--fiora-linkman-list-bg) !important;
+}
+
+/* 搜索框 */
+.app .functionBar input {
+    background: var(--fiora-input-bg) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+}
+
+.app .functionBar input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 联系人列表 */
+.app .linkmanList {
+    background: var(--fiora-linkman-list-bg) !important;
+}
+
+/* 联系人条目 */
+.app .linkmanList > div {
+    border-radius: var(--fiora-border-radius-md) !important;
+    transition: background 0.2s ease !important;
+    background: transparent !important;
+}
+
+.app .linkmanList > div:hover {
+    background: var(--fiora-linkman-item-hover-bg) !important;
+}
+
+/* 选中态 */
+.app .linkmanList > div[class*="focus"] {
+    background: var(--fiora-linkman-item-active-bg) !important;
+}
+
+/* 选中态子元素也要透明 */
+.app .linkmanList > div[class*="focus"] * {
+    background: transparent !important;
+}
+
+/* 联系人文字颜色 */
+.app .functionBarAndLinkmanList,
+.app .functionBarAndLinkmanList * {
+    color: var(--fiora-text-primary) !important;
+}
+
+/* ========== 5. 聊天区域 ========== */
+
+.app .chat {
+    background: var(--fiora-chat-bg) !important;
+}
+
+/* 聊天区所有文字 */
+.app .chat,
+.app .chat * {
+    color: var(--fiora-text-primary) !important;
+}
+
+/* 消息气泡 - KOOK扁平风格 */
+.app .message.self .content {
+    background: var(--fiora-message-self-bg) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+    border: none !important;
+    color: #ffffff !important;
+}
+
+.app .message:not(.self) .content {
+    background: var(--fiora-message-other-bg) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: var(--fiora-text-primary) !important;
+}
+
+.app .message .content * {
+    color: inherit !important;
+}
+
+/* 隐藏消息气泡箭头（KOOK扁平风格） */
+.app .message .arrow {
+    display: none !important;
+}
+
+/* ========== 6. 输入框 ========== */
+
+.app .chatInput {
+    background: var(--fiora-chat-input-bg) !important;
+    padding: 10px 16px !important;
+}
+
+.app .chatInput .input {
+    background: var(--fiora-input-bg) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+}
+
+.app .chatInput .input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 提示按钮垂直居中 */
+.app .chatInput .form {
+    position: relative !important;
+}
+
+.app .chatInput .form .iconfont.icon-about {
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* ========== 7. 弹窗 ========== */
+
+/* 弹窗通过Portal渲染到body，直接选择 */
+body > .rc-dialog-wrap,
+.rc-dialog-wrap {
+    background: var(--fiora-dialog-mask-bg) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.rc-dialog {
+    background: var(--fiora-dialog-bg) !important;
+    border-radius: var(--fiora-border-radius-lg) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+}
+
+.rc-dialog-header,
+.rc-dialog-title {
+    background: var(--fiora-dialog-bg) !important;
+    border-bottom: 1px solid var(--fiora-border-color) !important;
+    color: var(--fiora-text-primary) !important;
+}
+
+.rc-dialog-body,
+.rc-dialog-content {
+    background: var(--fiora-dialog-bg) !important;
+    color: var(--fiora-text-primary) !important;
+}
+
+/* 弹窗内所有文字 */
+.rc-dialog,
+.rc-dialog * {
+    color: var(--fiora-text-primary) !important;
+}
+
+/* 弹窗内的输入框和按钮 */
+.rc-dialog input,
+.rc-dialog textarea {
+    background: var(--fiora-input-bg) !important;
+    background-color: var(--fiora-input-bg) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+}
+
+.rc-dialog input::placeholder,
+.rc-dialog textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.rc-dialog button {
+    background: var(--fiora-bg-tertiary) !important;
+    background-color: var(--fiora-bg-tertiary) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-sm) !important;
+}
+
+.rc-dialog button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 关闭按钮 */
+.rc-dialog-close {
+    color: rgba(255, 255, 255, 0.6) !important;
+    background: transparent !important;
+}
+
+.rc-dialog-close:hover {
+    color: var(--fiora-text-primary) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ========== 8. 动画效果 ========== */
+
+/* 消息入场动画（仅他人消息，避免自己发送双播放） */
+.app .message:not(.self) {
+    animation: kookMsgSlideIn 0.22s ease-out both !important;
+}
+
+.app .message.self {
+    animation: none !important;
+}
+
+@keyframes kookMsgSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 联系人悬停效果 */
+.app .linkmanList > div:hover {
+    transform: translateX(3px);
+}
+
+/* ========== 结束 ========== */
+
+/*
+ * 提示：如需进一步定制，可以：
+ * 1. 修改:root中的CSS变量
+ * 2. 添加新的选择器规则
+ * 3. 调整动画时长和曲线
+ * 
+ * 更多帮助请参考《Fiora自定义CSS完整指南.md》
+ */
+
+
+ * 
+ * 特点：
+ * - 基于CSS变量 + 实际存在的类名
+ * - 深色背景，高对比度文字
+ * - 扁平化设计，KOOK风格
+ * - 紧凑布局，高信息密度
+ * - 不依赖data-fiora属性，当前即可使用
+ * 
+ * 使用方法：
+ * 将此文件的全部内容复制到"自定义CSS"框中，点击保存即可
+ * 
+ * 更新日期：2026-01-05
+ */
+
+/* ========== 1. CSS变量定义（核心主题色） ========== */
+:root {
+    /* 背景色系 - KOOK深色风格 */
+    --fiora-bg-primary: #0a0a0a;          /* 最外层深黑色 */
+    --fiora-bg-secondary: #1e1f22;        /* 侧边栏 */
+    --fiora-bg-tertiary: #25272A;         /* 联系人列表/聊天区 */
+    --fiora-bg-overlay: rgba(0, 0, 0, 0.75);
+    
+    /* 文字颜色 */
+    --fiora-text-primary: #ffffff;
+    --fiora-text-secondary: rgba(255, 255, 255, 0.75);
+    --fiora-text-tertiary: #949ba4;       /* KOOK标准灰色 */
+    
+    /* 主色调 - KOOK绿色 */
+    --fiora-primary-color: #23a55a;
+    --fiora-primary-hover: #1f9250;
+    --fiora-primary-active: #1b7f46;
+    
+    /* 边框 */
+    --fiora-border-color: rgba(255, 255, 255, 0.10);
+    
+    /* 组件颜色 */
+    --fiora-sidebar-bg: #1e1f22;
+    --fiora-sidebar-icon-color: rgba(255, 255, 255, 0.5);
+    --fiora-sidebar-icon-hover: rgba(255, 255, 255, 0.75);
+    --fiora-sidebar-icon-active: #ffffff;
+    
+    --fiora-linkman-list-bg: #25272A;
+    --fiora-linkman-item-hover-bg: rgba(255, 255, 255, 0.04);
+    --fiora-linkman-item-active-bg: rgba(255, 255, 255, 0.06);
+    
+    --fiora-chat-bg: #25272A;
+    --fiora-chat-header-bg: #25272A;
+    --fiora-chat-input-bg: #1e1f22;
+    
+    --fiora-message-self-bg: rgba(35, 165, 90, 0.85);
+    --fiora-message-other-bg: rgba(255, 255, 255, 0.10);
+    
+    --fiora-input-bg: #36383D;            /* KOOK输入框颜色 */
+    --fiora-input-border: rgba(255, 255, 255, 0.10);
+    
+    --fiora-dialog-bg: #2b2d31;
+    --fiora-dialog-mask-bg: rgba(0, 0, 0, 0.75);
+    
+    /* 尺寸变量 */
+    --fiora-container-width: 95%;
+    --fiora-container-max-width: 1200px;
+    --fiora-container-height: 85vh;
+    --fiora-sidebar-width: 70px;
+    --fiora-linkman-list-width: 290px;
+    
+    /* 圆角 - KOOK扁平风格 */
+    --fiora-border-radius-sm: 3px;
+    --fiora-border-radius-md: 8px;
+    --fiora-border-radius-lg: 12px;
+    --fiora-border-radius-xl: 16px;
+}
+
+/* ========== 2. 整体布局 ========== */
+
+/* 大背景深色 */
+html, body {
+    background: var(--fiora-bg-primary) !important;
+}
+
+.app {
+    background: var(--fiora-bg-primary) !important;
+    min-height: 100vh !important;
+}
+
+/* 主容器居中 + 彩色光晕 */
+.app .child {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: var(--fiora-container-width) !important;
+    max-width: var(--fiora-container-max-width) !important;
+    height: var(--fiora-container-height) !important;
+    
+    /* 多层彩色阴影（围绕窗口一圈） */
+    box-shadow: 
+        0 0 60px 20px rgba(139, 92, 246, 0.3),
+        0 0 100px 40px rgba(59, 130, 246, 0.2),
+        0 0 140px 60px rgba(236, 72, 153, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.6) !important;
+    
+    border-radius: var(--fiora-border-radius-xl) !important;
+    overflow: hidden !important;
+}
+
+/* ========== 3. 侧边栏 ========== */
+
+.app .sidebar {
+    background: var(--fiora-sidebar-bg) !important;
+    width: var(--fiora-sidebar-width) !important;
+}
+
+.app .sidebar .iconfont {
+    color: var(--fiora-sidebar-icon-color) !important;
+    transition: all 0.3s ease !important;
+}
+
+.app .sidebar .iconfont:hover {
+    color: var(--fiora-sidebar-icon-hover) !important;
+}
+
+.app .sidebar .active .iconfont {
+    color: var(--fiora-sidebar-icon-active) !important;
+}
+
+/* ========== 4. 联系人列表 ========== */
+
+.app .functionBarAndLinkmanList {
+    background: var(--fiora-linkman-list-bg) !important;
+    width: var(--fiora-linkman-list-width) !important;
+    border-right: 1px solid var(--fiora-border-color) !important;
+}
+
+/* 功能栏 */
+.app .functionBar {
+    background: var(--fiora-linkman-list-bg) !important;
+}
+
+/* 搜索框 */
+.app .functionBar input {
+    background: var(--fiora-input-bg) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+}
+
+.app .functionBar input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 联系人列表 */
+.app .linkmanList {
+    background: var(--fiora-linkman-list-bg) !important;
+}
+
+/* 联系人条目 */
+.app .linkmanList > div {
+    border-radius: var(--fiora-border-radius-md) !important;
+    transition: background 0.2s ease !important;
+    background: transparent !important;
+}
+
+.app .linkmanList > div:hover {
+    background: var(--fiora-linkman-item-hover-bg) !important;
+}
+
+/* 选中态 */
+.app .linkmanList > div[class*="focus"] {
+    background: var(--fiora-linkman-item-active-bg) !important;
+}
+
+/* 选中态子元素也要透明 */
+.app .linkmanList > div[class*="focus"] * {
+    background: transparent !important;
+}
+
+/* 联系人文字颜色 */
+.app .functionBarAndLinkmanList,
+.app .functionBarAndLinkmanList * {
+    color: var(--fiora-text-primary) !important;
+}
+
+/* ========== 5. 聊天区域 ========== */
+
+.app .chat {
+    background: var(--fiora-chat-bg) !important;
+}
+
+/* 聊天区所有文字 */
+.app .chat,
+.app .chat * {
+    color: var(--fiora-text-primary) !important;
+}
+
+/* 消息气泡 - KOOK扁平风格 */
+.app .message.self .content {
+    background: var(--fiora-message-self-bg) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+    border: none !important;
+    color: #ffffff !important;
+}
+
+.app .message:not(.self) .content {
+    background: var(--fiora-message-other-bg) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: var(--fiora-text-primary) !important;
+}
+
+.app .message .content * {
+    color: inherit !important;
+}
+
+/* 隐藏消息气泡箭头（KOOK扁平风格） */
+.app .message .arrow {
+    display: none !important;
+}
+
+/* ========== 6. 输入框 ========== */
+
+.app .chatInput {
+    background: var(--fiora-chat-input-bg) !important;
+    padding: 10px 16px !important;
+}
+
+.app .chatInput .input {
+    background: var(--fiora-input-bg) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+}
+
+.app .chatInput .input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 提示按钮垂直居中 */
+.app .chatInput .form {
+    position: relative !important;
+}
+
+.app .chatInput .form .iconfont.icon-about {
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* ========== 7. 弹窗 ========== */
+
+/* 弹窗通过Portal渲染到body，直接选择 */
+body > .rc-dialog-wrap,
+.rc-dialog-wrap {
+    background: var(--fiora-dialog-mask-bg) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.rc-dialog {
+    background: var(--fiora-dialog-bg) !important;
+    border-radius: var(--fiora-border-radius-lg) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+}
+
+.rc-dialog-header,
+.rc-dialog-title {
+    background: var(--fiora-dialog-bg) !important;
+    border-bottom: 1px solid var(--fiora-border-color) !important;
+    color: var(--fiora-text-primary) !important;
+}
+
+.rc-dialog-body,
+.rc-dialog-content {
+    background: var(--fiora-dialog-bg) !important;
+    color: var(--fiora-text-primary) !important;
+}
+
+/* 弹窗内所有文字 */
+.rc-dialog,
+.rc-dialog * {
+    color: var(--fiora-text-primary) !important;
+}
+
+/* 弹窗内的输入框和按钮 */
+.rc-dialog input,
+.rc-dialog textarea {
+    background: var(--fiora-input-bg) !important;
+    background-color: var(--fiora-input-bg) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-md) !important;
+}
+
+.rc-dialog input::placeholder,
+.rc-dialog textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.rc-dialog button {
+    background: var(--fiora-bg-tertiary) !important;
+    background-color: var(--fiora-bg-tertiary) !important;
+    color: var(--fiora-text-primary) !important;
+    border: 1px solid var(--fiora-border-color) !important;
+    border-radius: var(--fiora-border-radius-sm) !important;
+}
+
+.rc-dialog button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 关闭按钮 */
+.rc-dialog-close {
+    color: rgba(255, 255, 255, 0.6) !important;
+    background: transparent !important;
+}
+
+.rc-dialog-close:hover {
+    color: var(--fiora-text-primary) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ========== 8. 动画效果 ========== */
+
+/* 消息入场动画（仅他人消息，避免自己发送双播放） */
+.app .message:not(.self) {
+    animation: kookMsgSlideIn 0.22s ease-out both !important;
+}
+
+.app .message.self {
+    animation: none !important;
+}
+
+@keyframes kookMsgSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 联系人悬停效果 */
+.app .linkmanList > div:hover {
+    transform: translateX(3px);
+}
+
+/* ========== 结束 ========== */
+
+/*
+ * 提示：如需进一步定制，可以：
+ * 1. 修改:root中的CSS变量
+ * 2. 添加新的选择器规则
+ * 3. 调整动画时长和曲线
+ * 
+ * 更多帮助请参考《Fiora自定义CSS完整指南.md》
+ */

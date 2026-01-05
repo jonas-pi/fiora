@@ -13,6 +13,9 @@ import App from './App';
 import store from './state/store';
 import getData from './localStorage';
 
+// 引入CSS变量体系（为用户自定义CSS提供基础）
+import './styles/cssVariables.css';
+
 // 注册 Service Worker
 if (window.location.protocol === 'https:' && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {

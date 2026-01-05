@@ -106,11 +106,17 @@ function Chat() {
     }, [focus]);
 
     if (!hasUserInfo) {
-        return <div className={`${Style.chat} chat`} />;
+        return (
+            <div
+                className={`${Style.chat} chat`}
+                // 稳定选择器：聊天区域（未登录/未初始化时也保持存在）
+                data-fiora="chat-area"
+            />
+        );
     }
     if (!linkman) {
         return (
-            <div className={`${Style.chat} chat`}>
+            <div className={`${Style.chat} chat`} data-fiora="chat-area">
                 <HeaderBar id="" name="" type="" onClickFunction={() => {}} />
                 <div className={Style.noLinkman}>
                     <div className={Style.noLinkmanImage} />
@@ -143,7 +149,7 @@ function Chat() {
     }
 
     return (
-        <div className={`${Style.chat} chat`} {...aero}>
+        <div className={`${Style.chat} chat`} data-fiora="chat-area" {...aero}>
             <HeaderBar
                 id={linkman._id}
                 name={linkman.name}

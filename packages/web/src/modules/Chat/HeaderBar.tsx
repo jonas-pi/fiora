@@ -57,7 +57,12 @@ function HeaderBar(props: Props) {
     }
 
     return (
-        <div className={`${Style.headerBar} headerBar`} {...aero}>
+        <div
+            className={`${Style.headerBar} headerBar`}
+            // 稳定选择器：聊天头部栏
+            data-fiora="chat-header"
+            {...aero}
+        >
             {isMobile && (
                 <div className={Style.buttonContainer}>
                     <IconButton

@@ -83,12 +83,20 @@ function Sidebar() {
 
     return (
         <>
-            <div id="sidebar-root" className={`${Style.sidebar} sidebar`} {...aero}>
+            <div
+                id="sidebar-root"
+                className={`${Style.sidebar} sidebar`}
+                // 稳定选择器：用于用户自定义 CSS（不走 CSS Modules hash）
+                data-fiora="sidebar"
+                {...aero}
+            >
                 {isLogin && avatar && (
                     <Avatar
                         className={`${Style.avatar} avatar`}
                         src={avatar}
                         onClick={() => toggleSelfInfoDialogVisible(true)}
+                        // 头像也给一个稳定的 data-fiora（需要 Avatar 组件透传属性）
+                        data-fiora="sidebar-avatar"
                     />
                 )}
                 {isLogin && (

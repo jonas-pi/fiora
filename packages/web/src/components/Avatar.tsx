@@ -14,7 +14,11 @@ type Props = {
     onClick?: () => void;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
-};
+} & Omit<
+    React.ImgHTMLAttributes<HTMLImageElement>,
+    // 这些属性由组件内部控制（避免被外部覆盖导致异常）
+    'src' | 'style' | 'className' | 'onError' | 'onClick' | 'onMouseEnter' | 'onMouseLeave'
+>;
 
 function Avatar({
     src,
@@ -23,6 +27,8 @@ function Avatar({
     onClick,
     onMouseEnter,
     onMouseLeave,
+    // 允许透传 data-* / aria-* 等属性，便于用户自定义 CSS（稳定选择器）
+    ...rest
 }: Props) {
     const [failTimes, updateFailTimes] = useState(0);
 
@@ -50,6 +56,8 @@ function Avatar({
 
     return (
         <img
+            // 先透传“无害属性”（如 data-fiora、aria-label），再写入组件内部控制字段
+            {...rest}
             className={className}
             style={{ width: size, height: size, borderRadius: size / 2 }}
             src={url}
