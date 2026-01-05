@@ -16,6 +16,7 @@ import useAction from '../../hooks/useAction';
 import { State } from '../../state/reducer';
 import { injectCustomCss } from '../../utils/injectCustomCss';
 import Button from '../../components/Button';
+import { cssTemplates, CssTemplate } from '../../utils/cssTemplates';
 
 import Style from './Setting.less';
 import Common from './Common.less';
@@ -76,12 +77,26 @@ function Setting(props: SettingProps) {
     const [backgroundLoading, toggleBackgroundLoading] = useState(false);
     // 从 localStorage 加载已保存的 CSS，但不在输入框中显示（避免实时应用）
     const [customCss, setCustomCss] = useState('');
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
     // 组件挂载时，从 localStorage 加载已保存的 CSS 到输入框
     useEffect(() => {
         if (visible) {
             const savedCss = window.localStorage.getItem(LocalStorageKey.CustomCss) || '';
             setCustomCss(savedCss);
+            // 如果加载的CSS与某个模板匹配，自动选中该模板
+            if (savedCss) {
+                const matchedTemplate = cssTemplates.find(
+                    (template) => template.css.trim() === savedCss.trim(),
+                );
+                if (matchedTemplate) {
+                    setSelectedTemplateId(matchedTemplate.id);
+                } else {
+                    setSelectedTemplateId('');
+                }
+            } else {
+                setSelectedTemplateId('');
+            }
         }
     }, [visible]); // 当设置面板打开时加载
 
@@ -166,6 +181,16 @@ function Setting(props: SettingProps) {
      */
     function handleCustomCssChange(newCss: string) {
         setCustomCss(newCss);
+        // 如果用户手动修改了CSS，检查是否还匹配当前选中的模板
+        if (selectedTemplateId) {
+            const currentTemplate = cssTemplates.find(
+                (t) => t.id === selectedTemplateId,
+            );
+            if (currentTemplate && currentTemplate.css.trim() !== newCss.trim()) {
+                // 如果修改后的CSS与模板不匹配，清除模板选择
+                setSelectedTemplateId('');
+            }
+        }
     }
 
     /**
@@ -177,6 +202,7 @@ function Setting(props: SettingProps) {
             // 如果为空，清除自定义 CSS
             window.localStorage.removeItem(LocalStorageKey.CustomCss);
             injectCustomCss(''); // 这会清除所有之前的自定义CSS
+            setSelectedTemplateId(''); // 清除模板选择
             Message.success('已清除自定义 CSS');
         } else {
             // 应用自定义 CSS
@@ -185,6 +211,26 @@ function Setting(props: SettingProps) {
             injectCustomCss(customCss);
             Message.success('CSS 已应用');
         }
+    }
+
+    /**
+     * 选择 CSS 模板
+     */
+    function handleSelectTemplate(templateId: string) {
+        const template = cssTemplates.find((t) => t.id === templateId);
+        if (template) {
+            setSelectedTemplateId(templateId);
+            setCustomCss(template.css);
+            Message.info(`已加载模板：${template.name}`);
+        }
+    }
+
+    /**
+     * 清除模板选择
+     */
+    function handleClearTemplate() {
+        setSelectedTemplateId('');
+        setCustomCss('');
     }
 
     return (
@@ -452,30 +498,57 @@ function Setting(props: SettingProps) {
                     >
                         <div className={Common.block}>
                             <p className={Common.title}>自定义样式</p>
+                            
+                            {/* CSS 模板选择 */}
+                            {cssTemplates.length > 0 && (
+                                <div className={Style.templateSelector}>
+                                    <p className={Style.templateLabel}>快速应用预设模板：</p>
+                                    <div className={Style.templateButtons}>
+                                        {cssTemplates.map((template) => (
+                                            <Button
+                                                key={template.id}
+                                                className={`${Style.templateButton} ${
+                                                    selectedTemplateId === template.id
+                                                        ? Style.templateButtonActive
+                                                        : ''
+                                                }`}
+                                                onClick={() => handleSelectTemplate(template.id)}
+                                            >
+                                                {template.name}
+                                            </Button>
+                                        ))}
+                                        {selectedTemplateId && (
+                                            <Button
+                                                className={Style.templateButton}
+                                                onClick={handleClearTemplate}
+                                            >
+                                                清除模板
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {selectedTemplateId && (
+                                        <p className={Style.templateDescription}>
+                                            {
+                                                cssTemplates.find(
+                                                    (t) => t.id === selectedTemplateId,
+                                                )?.description
+                                            }
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
                             <p className={Style.backgroundTip}>
-                                在此处粘贴您的 CSS 代码，点击"应用"按钮后生效。
-                                如果输入框为空时点击"应用"，将清除所有自定义 CSS。
-                                <br />
-                                <strong>支持的功能：</strong>
-                                <br />
-                                ✅ 背景、布局、聊天框、动画等几乎所有元素
-                                <br />
-                                ✅ data URI（可内嵌图片、字体等）
-                                <br />
-                                ✅ 同源/相对路径资源（例如先上传背景图，再用 <code>/BackgroundImage/...</code> 引用）
-                                <br />
-                                ❌ 出于安全考虑，默认禁止从外部域名 <code>@import</code> / <code>url(http/https/..)</code> 加载资源
-                                <br />
-                                ✅ CSS 变量、动画、过渡效果
-                                <br />
-                                ✅ 媒体查询（响应式设计）
+                                在此处粘贴您的 CSS 代码，点击"应用"按钮后生效。输入框为空时点击"应用"将清除所有自定义 CSS。
                                 <br />
                                 <br />
-                                <strong>提示：</strong>建议使用浏览器开发者工具（F12）检查元素类名。
-                                详细的自定义指南请查看项目根目录的 <code>CSS自定义完整指南.md</code> 文件。
+                                <strong>支持：</strong>背景、布局、动画、CSS 变量、data URI、同源资源
                                 <br />
+                                <strong>禁止：</strong>外部域名资源（<code>@import</code>、<code>url(http/https/..)</code>）
                                 <br />
-                                <strong>注意：</strong>错误的 CSS 可能导致界面异常，请谨慎使用。建议先备份当前 CSS。
+                                <strong>提示：</strong>使用 F12 开发者工具检查元素类名，详细指南请查看 <code>CSS自定义完整指南.md</code>
+                                <br />
+                                <strong>注意：</strong>错误的 CSS 可能导致界面异常，请谨慎使用。
                             </p>
                             <textarea
                                 className={Style.cssTextarea}
