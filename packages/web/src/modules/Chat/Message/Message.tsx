@@ -214,6 +214,7 @@ class Message extends Component<MessageProps, MessageState> {
                 // - message-item：所有消息根节点
                 // - message-self / message-other：区分自己/他人消息（可用于样式/动画）
                 data-fiora={`message-item ${isSelf ? 'message-self' : 'message-other'}`}
+                data-self={isSelf ? 'true' : 'false'}
             >
                 <ShowUserOrGroupInfoContext.Consumer>
                     {(context) => (
@@ -277,15 +278,6 @@ class Message extends Component<MessageProps, MessageState> {
                     </div>
                     <div className={`${Style.arrow} arrow`} data-fiora="message-arrow" />
                 </div>
-            </div>
-        );
-    }
-}
-
-export default connect((state: State) => ({
-    isAdmin: !!(state.user && state.user.isAdmin),
-}))(Message);
-
             </div>
         );
     }

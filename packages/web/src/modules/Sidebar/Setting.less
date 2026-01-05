@@ -9,6 +9,19 @@
     }
 }
 
+/* 保护设置弹窗不受主题样式影响 */
+:global {
+    /* 确保设置弹窗内容正确定位（最高优先级） */
+    .rc-dialog.setting,
+    .dialog.setting {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+}
+
 .switchContainer {
     margin-bottom: 4px;
     display: flex;

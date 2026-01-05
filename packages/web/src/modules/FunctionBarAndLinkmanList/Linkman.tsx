@@ -107,16 +107,3 @@ function Linkman(props: LinkmanProps) {
 }
 
 export default Linkman;
-
-                    {unread > 0 && (
-                        <div className={Style.unread} data-fiora="linkman-unread">
-                            <span>{unread > 99 ? '99+' : unread}</span>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-export default Linkman;

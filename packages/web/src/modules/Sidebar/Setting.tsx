@@ -177,10 +177,16 @@ function Setting(props: SettingProps) {
     }
 
     /**
-     * 处理自定义 CSS 输入变化（仅更新状态，不应用）
+     * 处理自定义 CSS 输入变化
+     * 支持热更新：实时预览 CSS 效果（不保存到 localStorage）
      */
     function handleCustomCssChange(newCss: string) {
         setCustomCss(newCss);
+        
+        // 热更新：实时应用 CSS（不保存到 localStorage）
+        // 这样用户可以在输入框中实时看到效果，提升开发体验
+        injectCustomCss(newCss, true);
+        
         // 如果用户手动修改了CSS，检查是否还匹配当前选中的模板
         if (selectedTemplateId) {
             const currentTemplate = cssTemplates.find(
@@ -539,16 +545,18 @@ function Setting(props: SettingProps) {
                             )}
 
                             <p className={Style.backgroundTip}>
-                                在此处粘贴您的 CSS 代码，点击"应用"按钮后生效。输入框为空时点击"应用"将清除所有自定义 CSS。
+                                在此处粘贴您的 CSS 代码，<strong>支持实时预览</strong>：输入时即可看到效果，无需点击"应用"。
+                                <br />
+                                点击"应用"按钮将保存到本地存储，刷新页面后仍然生效。输入框为空时点击"应用"将清除所有自定义 CSS。
                                 <br />
                                 <br />
                                 <strong>支持：</strong>背景、布局、动画、CSS 变量、data URI、同源资源
                                 <br />
                                 <strong>禁止：</strong>外部域名资源（<code>@import</code>、<code>url(http/https/..)</code>）
                                 <br />
-                                <strong>提示：</strong>使用 F12 开发者工具检查元素类名，详细指南请查看 <code>CSS自定义完整指南.md</code>
+                                <strong>提示：</strong>使用 F12 开发者工具检查元素类名，详细指南请查看 <code>THEME.md</code>
                                 <br />
-                                <strong>注意：</strong>错误的 CSS 可能导致界面异常，请谨慎使用。
+                                <strong>注意：</strong>错误的 CSS 可能导致界面异常。如果页面无法使用，请在 URL 后添加 <code>?safeMode=true</code> 进入安全模式。
                             </p>
                             <textarea
                                 className={Style.cssTextarea}

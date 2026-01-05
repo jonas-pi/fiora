@@ -77,8 +77,23 @@ if (config.frontendMonitorAppId) {
 const { primaryColor, primaryTextColor } = getData();
 setCssVariable(primaryColor, primaryTextColor);
 
-// 加载用户自定义 CSS
-loadCustomCss();
+// 检查安全模式：如果 URL 带有 ?safeMode=true，则不加载用户自定义 CSS
+// 这是最后的容错保障，当用户写错 CSS 导致页面无法使用时，可以通过这个参数恢复
+const urlParams = new URLSearchParams(window.location.search);
+const isSafeMode = urlParams.get('safeMode') === 'true';
+
+if (!isSafeMode) {
+    // 正常模式：加载用户自定义 CSS
+    loadCustomCss();
+} else {
+    // 安全模式：只加载基础样式和默认主题，不加载用户自定义 CSS
+    // 这样可以确保用户能够访问设置面板来修复 CSS
+    import('./utils/injectCustomCss').then((module) => {
+        module.injectBaseStyles();
+        module.injectDefaultTheme();
+    });
+    console.warn('[Fiora] 安全模式已启用：用户自定义 CSS 已被禁用。移除 URL 中的 ?safeMode=true 可恢复正常模式。');
+}
 
 // 修复 aria-hidden 无障碍性问题
 // 延迟加载以确保在 React 渲染完成后执行

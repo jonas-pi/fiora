@@ -1,3 +1,45 @@
+import { baseStyles } from './base-styles';
+import { defaultTheme } from './default-theme';
+
+/**
+ * 注入基础样式层（第一层：基础设施层）
+ * 只负责布局和逻辑，不管颜色和装饰
+ */
+export function injectBaseStyles(): void {
+    const existed = document.getElementById('fiora-base-styles') as HTMLStyleElement | null;
+    if (existed) {
+        return; // 已存在，无需重复注入
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'fiora-base-styles';
+    style.textContent = baseStyles;
+    // 基础样式应该最早注入，放在 head 最前面
+    document.head.insertBefore(style, document.head.firstChild);
+}
+
+/**
+ * 注入默认主题（第二层：抽象语义变量层 + 第三层：艺术品表现层）
+ * 定义变量并应用默认主题样式
+ */
+export function injectDefaultTheme(): void {
+    const existed = document.getElementById('fiora-default-theme') as HTMLStyleElement | null;
+    if (existed) {
+        return; // 已存在，无需重复注入
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'fiora-default-theme';
+    style.textContent = defaultTheme;
+    // 默认主题应该在基础样式之后，但在用户自定义 CSS 之前
+    const baseStylesEl = document.getElementById('fiora-base-styles');
+    if (baseStylesEl && baseStylesEl.nextSibling) {
+        document.head.insertBefore(style, baseStylesEl.nextSibling);
+    } else {
+        document.head.appendChild(style);
+    }
+}
+
 /**
  * 清除所有用户自定义 CSS
  */
@@ -19,27 +61,55 @@ export function clearCustomCss(): void {
 /**
  * 注入用户自定义 CSS
  * @param cssText CSS 代码文本
+ * @param enableHotUpdate 是否启用热更新（实时预览），默认 false
+ * 
+ * 热更新说明：
+ * - 当 enableHotUpdate 为 true 时，每次调用都会更新样式标签内容，实现实时预览
+ * - 当 enableHotUpdate 为 false 时，会先清除旧样式再注入新样式（默认行为）
  */
-export function injectCustomCss(cssText: string) {
-    // 先清除所有之前的自定义 CSS
-    clearCustomCss();
+export function injectCustomCss(cssText: string, enableHotUpdate: boolean = false) {
+    if (enableHotUpdate) {
+        // 热更新模式：直接更新现有样式标签内容
+        let style = document.getElementById('user-custom-css') as HTMLStyleElement | null;
+        if (!style) {
+            // 如果不存在，创建新的样式标签
+            style = document.createElement('style');
+            style.id = 'user-custom-css';
+            document.head.appendChild(style);
+        }
+        
+        // 更新样式内容
+        if (!cssText || !cssText.trim()) {
+            style.textContent = '';
+        } else {
+            const sanitizedCss = sanitizeCss(cssText);
+            style.textContent = sanitizedCss;
+        }
+        
+        // 确保保护样式在最后
+        ensureProtectedUiCss();
+    } else {
+        // 默认模式：先清除所有之前的自定义 CSS
+        clearCustomCss();
 
-    // 如果 CSS 代码为空，直接返回（已清除，无需注入）
-    if (!cssText || !cssText.trim()) {
-        return;
+        // 如果 CSS 代码为空，直接返回（已清除，无需注入）
+        if (!cssText || !cssText.trim()) {
+            ensureProtectedUiCss();
+            return;
+        }
+
+        // 安全过滤：移除危险的 CSS 代码
+        const sanitizedCss = sanitizeCss(cssText);
+
+        // 创建新的样式标签
+        const style = document.createElement('style');
+        style.id = 'user-custom-css';
+        style.textContent = sanitizedCss;
+        document.head.appendChild(style);
+
+        // 自定义 CSS 注入完成后，确保"受保护 UI"样式在其之后（优先级更高）
+        ensureProtectedUiCss();
     }
-
-    // 安全过滤：移除危险的 CSS 代码
-    const sanitizedCss = sanitizeCss(cssText);
-
-    // 创建新的样式标签
-    const style = document.createElement('style');
-    style.id = 'user-custom-css';
-    style.textContent = sanitizedCss;
-    document.head.appendChild(style);
-
-    // 自定义 CSS 注入完成后，确保“受保护 UI”样式在其之后（优先级更高）
-    ensureProtectedUiCss();
 }
 
 /**
@@ -182,15 +252,27 @@ function sanitizeCss(cssText: string): string {
 
 /**
  * 从 localStorage 加载自定义 CSS
+ * 
+ * 加载顺序（严格按照三层架构）：
+ * 1. 基础样式层（Foundation Layer）- 布局和逻辑
+ * 2. 默认主题层（Default Theme）- 通过预设模板或默认变量
+ * 3. 用户自定义 CSS（User Custom CSS）- 最后加载，可以覆盖所有变量
  */
 export function loadCustomCss(): void {
+    // 第一步：注入基础样式层（第一层）
+    injectBaseStyles();
+    
+    // 第二步：注入默认主题（第二层 + 第三层）
+    injectDefaultTheme();
+    
+    // 第三步：加载用户自定义 CSS（最后加载以覆盖默认主题）
     const customCss = window.localStorage.getItem('customCss') || '';
     if (customCss) {
         injectCustomCss(customCss);
-        return;
+    } else {
+        // 即便没有自定义 CSS，也要确保保护样式存在（避免被其它样式/扩展影响）
+        ensureProtectedUiCss();
     }
-    // 即便没有自定义 CSS，也要确保保护样式存在（避免被其它样式/扩展影响）
-    ensureProtectedUiCss();
 }
 
 /**

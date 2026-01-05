@@ -53,7 +53,10 @@ function LinkmanList() {
     }
 
     return (
-        <div className={`${Style.linkmanList} linkmanList`}>
+        <div 
+            className={`${Style.linkmanList} linkmanList`}
+            data-fiora="linkman-list"
+        >
             {Object.values(linkmans)
                 .sort(sort)
                 .map((linkman) => renderLinkman(linkman))}
