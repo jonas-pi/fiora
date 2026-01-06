@@ -71,7 +71,7 @@ function ImageMessage(props: ImageMessageProps) {
 
     return (
         <>
-            <div className={className} ref={$container}>
+            <div className={className} ref={$container} data-fiora="message-image">
                 <img
                     className={Style.image}
                     src={imageSrc}
@@ -79,6 +79,7 @@ function ImageMessage(props: ImageMessageProps) {
                     width={width}
                     height={height}
                     onClick={() => toggleViewer(true)}
+                    data-fiora="message-image-content"
                 />
                 <CircleProgress
                     className={Style.imageProgress}

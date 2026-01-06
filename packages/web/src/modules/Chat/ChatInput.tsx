@@ -746,7 +746,6 @@ function ChatInput() {
                     onBlur={() => toggleInputFocus(false)}
                     id="chat-input"
                     name="chat-input"
-                    data-fiora="chat-input-field"
                     // 稳定选择器：输入框本体
                     data-fiora="chat-input-field"
                 />

@@ -2,9 +2,15 @@
 
 :global {
     .rc-dialog {
-        width: 450px;
-        top: 45% !important;
-        transform: translateY(-50%) !important;
+        /* 统一弹窗尺寸标准：标准弹窗 500px */
+        width: 500px;
+        /* 居中由基础样式层和默认主题的 flex 布局控制 */
+        /* 移除旧的定位方式，避免干扰居中 */
+        top: auto;
+        transform: none;
+        /* 确保弹窗居中显示 */
+        position: relative;
+        margin: 0;
     }
     .rc-dialog-content {
         width: 100%;

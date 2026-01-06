@@ -35,9 +35,15 @@
 }
 
 .codeDialog {
+    /* 超大弹窗尺寸：800px（用于代码查看等需要更大空间的场景） */
     width: 800px !important;
     max-height: 800px;
     display: flex;
+    /* 确保居中显示，不设置定位属性，由基础样式层控制 */
+    position: relative !important;
+    top: auto !important;
+    transform: none !important;
+    margin: 0 !important;
 
     @media @mobile {
         max-width: 90vw;

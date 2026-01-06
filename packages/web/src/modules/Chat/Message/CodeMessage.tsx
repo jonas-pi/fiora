@@ -56,6 +56,7 @@ function CodeMessage(props: CodeMessageProps) {
                 className={Style.codeMessage}
                 onClick={() => toggleCodeDialog(true)}
                 role="button"
+                data-fiora="message-code"
             >
                 <div className={Style.codeInfo}>
                     <div className={Style.icon}>

@@ -25,6 +25,8 @@ function LoginAndRegister() {
             visible={loginRegisterDialogVisible}
             closable={false}
             onClose={() => action.toggleLoginRegisterDialog(false)}
+            className={loginRegisterDialogVisible ? 'login-dialog-visible' : ''}
+            wrapClassName={loginRegisterDialogVisible ? 'login-dialog-wrap-visible' : ''}
         >
             <Tabs
                 className={Style.login}

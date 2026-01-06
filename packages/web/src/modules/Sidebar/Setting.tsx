@@ -544,52 +544,13 @@ function Setting(props: SettingProps) {
                                 </div>
                             )}
 
-                            <p className={Style.backgroundTip}>
-                                在此处粘贴您的 CSS 代码，<strong>支持实时预览</strong>：输入时即可看到效果，无需点击"应用"。
-                                <br />
-                                点击"应用"按钮将保存到本地存储，刷新页面后仍然生效。输入框为空时点击"应用"将清除所有自定义 CSS。
-                                <br />
-                                <br />
-                                <strong>支持：</strong>背景、布局、动画、CSS 变量、data URI、同源资源
-                                <br />
-                                <strong>禁止：</strong>外部域名资源（<code>@import</code>、<code>url(http/https/..)</code>）
-                                <br />
-                                <strong>提示：</strong>使用 F12 开发者工具检查元素类名，详细指南请查看 <code>THEME.md</code>
-                                <br />
-                                <strong>注意：</strong>错误的 CSS 可能导致界面异常。如果页面无法使用，请在 URL 后添加 <code>?safeMode=true</code> 进入安全模式。
-                            </p>
                             <textarea
                                 className={Style.cssTextarea}
                                 value={customCss}
                                 onChange={(e) => handleCustomCssChange(e.target.value)}
                                 id="custom-css-textarea"
                                 name="custom-css"
-                                placeholder={`/* 在此处粘贴您的 CSS 代码 */
-/* 支持几乎所有的 CSS 功能，包括背景、布局、动画等 */
-
-/* 示例：修改聊天区域背景 */
-.chat {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-/* 示例：修改消息气泡样式 */
-.message .content {
-    border-radius: 12px !important;
-    padding: 10px 15px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* 示例：添加动画效果 */
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.message {
-    animation: slideIn 0.3s ease !important;
-}
-
-/* 更多示例和完整类名列表请查看 CSS自定义完整指南.md */`}
+                                placeholder=""
                                 spellCheck={false}
                             />
                             <div style={{ marginTop: '10px' }}>

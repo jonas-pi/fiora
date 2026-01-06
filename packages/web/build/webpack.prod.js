@@ -11,6 +11,12 @@ module.exports = merge(common, {
         publicPath: process.env.PublicPath || '/',
     },
     devtool: false,
+    performance: {
+        // 调整资源大小警告阈值，避免正常大小的资源触发警告
+        maxAssetSize: 512000, // 512KB
+        maxEntrypointSize: 2048000, // 2MB
+        hints: 'warning', // 只显示警告，不阻止构建
+    },
     optimization: {
         minimize: true,
         minimizer: [

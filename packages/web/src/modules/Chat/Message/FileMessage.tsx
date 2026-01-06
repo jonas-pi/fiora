@@ -44,6 +44,7 @@ function FileMessage({ file, percent }: Props) {
     return (
         <a
             className={styles.container}
+            data-fiora="message-file"
             {...(fileUrl
                 ? { href: url, download: filename, target: '_blank' }
                 : {})}

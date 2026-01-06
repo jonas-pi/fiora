@@ -316,21 +316,47 @@ function ensureProtectedUiCss() {
 }
 
 /* 管理员控制台（rc-dialog）保护
- * 关键点：只对“打开态”生效（由 Admin.tsx 注入 class：admin-console-visible）
+ * 关键点：只对"打开态"生效（由 Admin.tsx 注入 class：admin-console-visible）
  * - 不能依赖 aria-hidden（在部分场景下可能为空，见用户反馈）
  * - 这样既能防止用户 CSS 隐藏弹窗，又不会阻止正常关闭
+ * - 使用 flex 布局确保居中显示
  */
 .admin-console-wrap.admin-console-visible {
-  display: block !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 }
 .admin-console-wrap.admin-console-visible .rc-dialog.admin-console-dialog.admin-console-visible {
-  display: block !important;
+  display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
+  position: relative !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+/* 登录/注册弹窗保护（防止用户 CSS 导致无法登录）
+ * 关键点：只对"打开态"生效（由 LoginAndRegister.tsx 注入 class：login-dialog-visible）
+ * - 这样既能防止用户 CSS 隐藏弹窗，又不会阻止正常关闭
+ */
+.login-dialog-wrap-visible[data-fiora="dialog-mask"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 2147483647 !important;
+}
+.login-dialog-wrap-visible[data-fiora="dialog-mask"] .rc-dialog.login-dialog-visible {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 2147483647 !important;
 }
 `;
 

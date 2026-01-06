@@ -1,7 +1,8 @@
 @import '../styles/variable.less';
 
 .infoDialog {
-    width: 300px !important;
+    /* 小弹窗标准尺寸：400px */
+    width: 400px !important;
     @media @mobile {
         width: 80% !important;
     }
@@ -13,6 +14,17 @@
                 width: 100%;
             }
         }
+    }
+}
+
+/* 为群组信息窗口的遮罩层添加背景模糊效果（因为窗口是半透明白色底） */
+:global {
+    /* 通过父级选择器匹配包含 infoDialog 的遮罩层 */
+    .rc-dialog-wrap:has(.rc-dialog.infoDialog),
+    /* 兼容方案：直接选择包含 infoDialog 类的遮罩层（通过相邻选择器） */
+    [data-fiora="dialog-mask"]:has(.infoDialog) {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
 }
 

@@ -9,12 +9,12 @@ interface SystemMessageProps {
 function SystemMessage(props: SystemMessageProps) {
     const { message, username } = props;
     return (
-        <div className="system">
-            <span style={{ color: getPerRandomColor(username) }}>
+        <div className="system" data-fiora="message-system">
+            <span style={{ color: getPerRandomColor(username) }} data-fiora="message-system-username">
                 {username}
             </span>
             &nbsp;
-            {message}
+            <span data-fiora="message-system-content">{message}</span>
         </div>
     );
 }

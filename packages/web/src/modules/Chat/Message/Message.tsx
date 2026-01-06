@@ -231,11 +231,12 @@ class Message extends Component<MessageProps, MessageState> {
                     )}
                 </ShowUserOrGroupInfoContext.Consumer>
                 <div className={`${Style.right} right`}>
-                    <div className={`${Style.nicknameTimeBlock} nicknameTimeBlock`}>
+                    <div className={`${Style.nicknameTimeBlock} nicknameTimeBlock`} data-fiora="message-name-time">
                         {tag && (
                             <span
                                 className={`${Style.tag} tag`}
                                 style={{ backgroundColor: tagColor }}
+                                data-fiora="message-tag"
                             >
                                 {tag}
                             </span>
@@ -249,6 +250,7 @@ class Message extends Component<MessageProps, MessageState> {
                     </div>
                     <div
                         className={`${Style.contentButtonBlock} contentButtonBlock`}
+                        data-fiora="message-content-wrapper"
                         onMouseEnter={this.handleMouseEnter}
                         onMouseLeave={this.handleMouseLeave}
                     >
@@ -256,7 +258,7 @@ class Message extends Component<MessageProps, MessageState> {
                             {this.renderContent()}
                         </div>
                         {showButtonList && (
-                            <div className={`${Style.buttonList} buttonList`}>
+                            <div className={`${Style.buttonList} buttonList`} data-fiora="message-button-list">
                                 <Tooltip
                                     placement={isSelf ? 'left' : 'right'}
                                     mouseEnterDelay={0.3}

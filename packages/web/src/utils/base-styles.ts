@@ -109,15 +109,6 @@ export const baseStyles = `
     flex-direction: row-reverse;
 }
 
-[data-fiora="message-bubble"] {
-    display: inline-block;
-    position: relative;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    max-width: 100%;
-    /* 不设置背景、颜色、圆角，由主题层控制 */
-}
-
 [data-fiora="message-avatar"] {
     flex-shrink: 0;
     position: relative;
@@ -264,9 +255,18 @@ export const baseStyles = `
     z-index: 2147483646 !important;
 }
 
-/* 登录/注册弹窗保护（防止用户 CSS 导致无法登录） */
-[data-fiora="dialog"][data-fiora~="login-dialog"],
-[data-fiora="dialog"][data-fiora~="register-dialog"] {
+/* 登录/注册弹窗保护（防止用户 CSS 导致无法登录）
+ * 关键点：只对"打开态"生效（由 LoginAndRegister.tsx 注入 class：login-dialog-visible）
+ * - 这样既能防止用户 CSS 隐藏弹窗，又不会阻止正常关闭
+ */
+.login-dialog-wrap-visible[data-fiora="dialog-mask"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 2147483647 !important;
+}
+.login-dialog-wrap-visible[data-fiora="dialog-mask"] .rc-dialog.login-dialog-visible {
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;

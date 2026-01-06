@@ -73,7 +73,7 @@ function Linkman(props: LinkmanProps) {
             {...aero}
         >
             <Avatar src={avatar} size={48} data-fiora="linkman-avatar" />
-            <div className={Style.container} data-fiora="linkman-meta">
+            <div className={Style.container} data-fiora="linkman-info">
                 <div
                     className={`${Style.rowContainer} ${Style.nameTimeBlock}`}
                     data-fiora="linkman-name-time"

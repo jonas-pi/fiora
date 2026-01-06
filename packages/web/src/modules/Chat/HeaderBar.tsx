@@ -88,24 +88,25 @@ function HeaderBar(props: Props) {
                     />
                 </div>
             )}
-            <h2 className={`${Style.name} name`}>
+            <h2 className={`${Style.name} name`} data-fiora="chat-header-name">
                 {name && (
                     <span>
                         {name}{' '}
                         {isLogin && onlineMembersCount !== undefined && (
                             <b
                                 className={styles.count}
+                                data-fiora="chat-header-online-count"
                             >{`(${onlineMembersCount})`}</b>
                         )}
                         {isLogin && isOnline !== undefined && (
-                            <b className={styles.count}>{`(${
+                            <b className={styles.count} data-fiora="chat-header-status">{`(${
                                 isOnline ? '在线' : '离线'
                             })`}</b>
                         )}
                     </span>
                 )}
                 {isMobile && (
-                    <span className={Style.status}>
+                    <span className={Style.status} data-fiora="chat-header-mobile-status">
                         <div className={connectStatus ? 'online' : 'offline'} />
                         {connectStatus ? '在线' : '离线'}
                     </span>
@@ -114,6 +115,7 @@ function HeaderBar(props: Props) {
             {isLogin && type ? (
                 <div
                     className={`${Style.buttonContainer} buttonContainer ${Style.rightButtonContainer}`}
+                    data-fiora="chat-header-buttons"
                 >
                     {type === 'group' && (
                         <CopyToClipboard
@@ -137,7 +139,7 @@ function HeaderBar(props: Props) {
                     />
                 </div>
             ) : (
-                <div className={`${Style.buttonContainer} buttonContainer`} />
+                <div className={`${Style.buttonContainer} buttonContainer`} data-fiora="chat-header-buttons" />
             )}
         </div>
     );

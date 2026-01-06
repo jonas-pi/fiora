@@ -22,3 +22,13 @@ npm WARN config     [`cacache`](http://npm.im/cacache).
 [cleanupOldMessages] Deleted 0 file messages
 [cleanupOldMessages] Deleted 0 text messages
 [cleanupOldMessages] Cleanup completed. Deleted 0 file messages, 0 text messages, 0 files, freed 0.00MB
+npm WARN config tmp This setting is no longer used.  npm stores temporary files in a special
+npm WARN config location in the cache, and they are managed by
+npm WARN config     [`cacache`](http://npm.im/cacache).
+[cleanupOldMessages] Starting cleanup...
+[cleanupOldMessages] Text messages older than 2025-10-07T19:00:02.720Z will be deleted
+[cleanupOldMessages] File messages older than 2025-12-29T19:00:02.720Z will be deleted
+[cleanupOldMessages] Found 0 file messages to delete
+[cleanupOldMessages] Deleted 0 file messages
+[cleanupOldMessages] Deleted 0 text messages
+[cleanupOldMessages] Cleanup completed. Deleted 0 file messages, 0 text messages, 0 files, freed 0.00MB

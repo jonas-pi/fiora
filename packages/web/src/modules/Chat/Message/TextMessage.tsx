@@ -30,6 +30,7 @@ function TextMessage(props: TextMessageProps) {
     return (
         <div
             className={Style.textMessage}
+            data-fiora="message-text"
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: content }}
         />

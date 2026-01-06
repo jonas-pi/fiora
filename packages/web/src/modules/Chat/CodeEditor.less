@@ -1,7 +1,13 @@
 @import '../../styles/variable.less';
 
 .codeEditor {
+    /* 大弹窗标准尺寸：600px */
     width: 600px;
+    /* 确保居中显示，不设置定位属性，由基础样式层控制 */
+    position: relative;
+    top: auto;
+    transform: none;
+    margin: 0;
 
     @media @mobile {
         width: 100%;

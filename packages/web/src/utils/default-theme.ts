@@ -5,21 +5,22 @@
  * 
  * 原则：
  * - 只给变量赋值
- * - 添加装饰性细节（动画、阴影、圆角等）
- * - 使用 data-fiora 属性选择器
- * - 不设置布局相关的 CSS（由基础层负责）
+ * - 提供有层次感的默认样式（阴影、圆角、边框、间距等）
+ * - 不使用 !important（确保自定义CSS可以轻松覆盖）
+ * - 使用过渡效果提升交互体验（可被自定义CSS覆盖）
+ * - 全面为自定义CSS让路
  */
 
 import { ThemeVariables } from './theme-variables';
 
 /**
  * 默认主题 CSS
- * 这是 Fiora 的"艺术品级"默认外观
+ * 有层次感的设计，提供阴影、圆角、边框等视觉元素，确保自定义CSS可以轻松覆盖
  */
 export const defaultTheme = `
 /* ============================================
    Fiora 默认主题 (Default Theme)
-   艺术品表现层 - 通过变量赋值和装饰性细节
+   有层次感的设计 - 提供视觉层次，全面为自定义CSS让路
    ============================================ */
 
 :root {
@@ -79,7 +80,7 @@ export const defaultTheme = `
     ${ThemeVariables.msgBubbleOtherBg}: #ffffff;
     ${ThemeVariables.msgBubbleOtherColor}: var(${ThemeVariables.textPrimary});
     ${ThemeVariables.msgBubbleRadius}: 12px;
-    ${ThemeVariables.msgBubbleShadow}: 0 2px 8px rgba(0, 0, 0, 0.1);
+    ${ThemeVariables.msgBubbleShadow}: 0 2px 4px rgba(0, 0, 0, 0.1);
     
     /* 联系人列表 */
     ${ThemeVariables.linkmanItemBg}: transparent;
@@ -121,7 +122,7 @@ export const defaultTheme = `
     ${ThemeVariables.spacingLg}: 24px;
     ${ThemeVariables.spacingXl}: 32px;
     
-    /* 动画 */
+    /* 动画（提供变量，但不强制使用） */
     ${ThemeVariables.transitionFast}: 0.15s;
     ${ThemeVariables.transitionBase}: 0.3s;
     ${ThemeVariables.transitionSlow}: 0.5s;
@@ -130,58 +131,53 @@ export const defaultTheme = `
     ${ThemeVariables.easeIn}: cubic-bezier(0.4, 0, 1, 1);
     ${ThemeVariables.easeBounce}: cubic-bezier(0.34, 1.56, 0.64, 1);
     
-    /* 阴影 */
+    /* 阴影（提供变量，但不强制使用） */
     ${ThemeVariables.shadowSm}: 0 1px 2px rgba(0, 0, 0, 0.05);
     ${ThemeVariables.shadowMd}: 0 4px 6px rgba(0, 0, 0, 0.1);
     ${ThemeVariables.shadowLg}: 0 10px 15px rgba(0, 0, 0, 0.1);
     ${ThemeVariables.shadowXl}: 0 20px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* === 应用变量到组件（装饰性细节） === */
+/* === 应用配色和层次感样式（不使用!important，可被自定义CSS覆盖） === */
 
-/* 主容器 */
+/* 主容器 - 设置尺寸、背景、圆角和阴影 */
 [data-fiora="main-container"] {
     width: var(${ThemeVariables.containerWidth});
     max-width: var(${ThemeVariables.containerMaxWidth});
     height: var(${ThemeVariables.containerHeight});
     background: var(${ThemeVariables.bgContainer});
-    border-radius: var(${ThemeVariables.borderRadiusXl});
-    box-shadow: var(${ThemeVariables.shadowXl});
     margin: auto;
+    border-radius: var(${ThemeVariables.borderRadiusLg});
+    box-shadow: var(${ThemeVariables.shadowLg});
 }
 
-/* 侧边栏 */
+/* 侧边栏 - 设置尺寸、背景和边框 */
 [data-fiora="sidebar"] {
     width: var(${ThemeVariables.sidebarWidth});
     background: var(${ThemeVariables.bgSidebar});
+    border-right: 1px solid var(${ThemeVariables.borderColor});
 }
 
+/* 侧边栏图标 - 只设置颜色 */
 [data-fiora="sidebar"] .iconfont {
     color: var(${ThemeVariables.sidebarIconColor});
-    transition: color var(${ThemeVariables.transitionBase}) var(${ThemeVariables.easeInOut});
 }
 
-[data-fiora="sidebar"] .iconfont:hover {
-    color: var(${ThemeVariables.sidebarIconColorHover});
-}
-
-[data-fiora="sidebar"] .iconfont.active {
-    color: var(${ThemeVariables.sidebarIconColorActive});
-}
-
-/* 联系人列表 */
+/* 联系人区域 - 设置尺寸、背景和边框 */
 [data-fiora="linkman-area"] {
     width: var(${ThemeVariables.linkmanListWidth});
     background: var(${ThemeVariables.bgLinkmanList});
     border-right: 1px solid var(${ThemeVariables.borderColor});
 }
 
+/* 联系人项 - 设置背景、文字颜色、内边距和过渡效果 */
 [data-fiora="linkman-item"] {
     background: var(${ThemeVariables.linkmanItemBg});
     padding: var(${ThemeVariables.spacingSm}) var(${ThemeVariables.spacingMd});
-    margin: var(${ThemeVariables.spacingXs}) var(${ThemeVariables.spacingSm});
+    margin: 2px var(${ThemeVariables.spacingXs});
     border-radius: var(${ThemeVariables.borderRadiusMd});
-    transition: background var(${ThemeVariables.transitionBase}) var(${ThemeVariables.easeInOut});
+    transition: background-color var(${ThemeVariables.transitionFast}) var(${ThemeVariables.easeInOut});
+    cursor: pointer;
 }
 
 [data-fiora="linkman-item"]:hover {
@@ -194,7 +190,6 @@ export const defaultTheme = `
 
 [data-fiora="linkman-name"] {
     color: var(${ThemeVariables.linkmanNameColor});
-    font-weight: 600;
 }
 
 [data-fiora="linkman-preview"] {
@@ -203,113 +198,93 @@ export const defaultTheme = `
 
 [data-fiora="linkman-time"] {
     color: var(${ThemeVariables.linkmanTimeColor});
-    font-size: 11px;
 }
 
-/* 聊天区域 */
+/* 聊天区域 - 只设置背景 */
 [data-fiora="chat-area"] {
     background: var(${ThemeVariables.bgChat});
 }
 
-/* 消息气泡 */
-[data-fiora="message-bubble"] {
+/* 消息内容 - 设置背景、文字颜色、圆角和阴影 */
+[data-fiora="message-item"][data-self="true"] [data-fiora="message-content"] {
+    background: var(${ThemeVariables.msgBubbleSelfBg});
+    color: var(${ThemeVariables.msgBubbleSelfColor});
     border-radius: var(${ThemeVariables.msgBubbleRadius});
     box-shadow: var(${ThemeVariables.msgBubbleShadow});
     padding: var(${ThemeVariables.spacingSm}) var(${ThemeVariables.spacingMd});
-    margin: var(${ThemeVariables.spacingXs}) 0;
-    max-width: 70%;
-    transition: transform var(${ThemeVariables.transitionBase}) var(${ThemeVariables.easeOut});
 }
 
-[data-fiora="message-item"][data-self="true"] [data-fiora="message-bubble"] {
-    background: var(${ThemeVariables.msgBubbleSelfBg});
-    color: var(${ThemeVariables.msgBubbleSelfColor});
-    margin-left: auto;
-}
-
-[data-fiora="message-item"]:not([data-self="true"]) [data-fiora="message-bubble"] {
+[data-fiora="message-item"]:not([data-self="true"]) [data-fiora="message-content"] {
     background: var(${ThemeVariables.msgBubbleOtherBg});
     color: var(${ThemeVariables.msgBubbleOtherColor});
-    margin-right: auto;
+    border-radius: var(${ThemeVariables.msgBubbleRadius});
+    box-shadow: var(${ThemeVariables.msgBubbleShadow});
+    padding: var(${ThemeVariables.spacingSm}) var(${ThemeVariables.spacingMd});
+    border: 1px solid var(${ThemeVariables.borderColorLight});
 }
 
-[data-fiora="message-bubble"]:hover {
-    transform: translateY(-2px);
-    box-shadow: var(${ThemeVariables.shadowLg});
-}
-
-/* 输入框 */
+/* 输入框区域 - 设置背景和边框 */
 [data-fiora="chat-input"] {
     background: var(${ThemeVariables.bgChatInput});
-    padding: var(${ThemeVariables.spacingMd});
     border-top: 1px solid var(${ThemeVariables.borderColor});
+    padding: var(${ThemeVariables.spacingMd});
 }
 
-[data-fiora="chat-input"] input,
-[data-fiora="chat-input"] textarea {
+/* 输入框 - 设置背景、文字颜色、边框和圆角 */
+[data-fiora="chat-input-field"] {
     background: var(${ThemeVariables.inputBg});
     color: var(${ThemeVariables.inputColor});
     border: 1px solid var(${ThemeVariables.inputBorderColor});
     border-radius: var(${ThemeVariables.inputBorderRadius});
     padding: var(${ThemeVariables.spacingSm}) var(${ThemeVariables.spacingMd});
-    transition: border-color var(${ThemeVariables.transitionBase}) var(${ThemeVariables.easeInOut});
+    transition: border-color var(${ThemeVariables.transitionFast}) var(${ThemeVariables.easeInOut});
 }
 
-[data-fiora="chat-input"] input:focus,
-[data-fiora="chat-input"] textarea:focus {
+[data-fiora="chat-input-field"]:focus {
     outline: none;
     border-color: var(${ThemeVariables.colorPrimary});
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
 }
 
-/* 弹窗 */
+/* 弹窗 - 设置背景和确保居中 */
 [data-fiora="dialog-mask"] {
     background: var(${ThemeVariables.bgDialogMask});
-    backdrop-filter: blur(4px);
+    /* 确保遮罩层居中布局 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 [data-fiora="dialog"] {
     background: var(${ThemeVariables.bgDialog});
+    /* 确保弹窗居中显示，移除可能干扰居中的定位 */
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    margin: 0;
     border-radius: var(${ThemeVariables.borderRadiusLg});
     box-shadow: var(${ThemeVariables.shadowXl});
-    max-width: 500px;
-    width: 90vw;
+    overflow: hidden;
 }
 
 [data-fiora="dialog-header"] {
+    color: var(${ThemeVariables.textPrimary});
     padding: var(${ThemeVariables.spacingMd}) var(${ThemeVariables.spacingLg});
     border-bottom: 1px solid var(${ThemeVariables.borderColor});
-    color: var(${ThemeVariables.textPrimary});
+    background: var(${ThemeVariables.bgDialog});
 }
 
 [data-fiora="dialog-body"] {
-    padding: var(${ThemeVariables.spacingLg});
     color: var(${ThemeVariables.textPrimary});
+    padding: var(${ThemeVariables.spacingLg});
 }
 
 [data-fiora="dialog-footer"] {
     padding: var(${ThemeVariables.spacingMd}) var(${ThemeVariables.spacingLg});
     border-top: 1px solid var(${ThemeVariables.borderColor});
-}
-
-/* === 入场动画（装饰性细节） === */
-@keyframes fioraFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-[data-fiora="main-container"] {
-    animation: fioraFadeIn 0.6s var(${ThemeVariables.easeOut});
-}
-
-[data-fiora="message-item"]:not([data-self="true"]) {
-    animation: fioraFadeIn 0.4s var(${ThemeVariables.easeBounce}) both;
+    background: var(${ThemeVariables.bgDialog});
 }
 `;
-

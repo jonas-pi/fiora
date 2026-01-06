@@ -33,14 +33,15 @@ function InviteMessage(props: InviteMessageProps) {
             className={Style.inviteMessage}
             onClick={handleJoinGroup}
             role="button"
+            data-fiora="message-invite"
         >
-            <div className={Style.info}>
+            <div className={Style.info} data-fiora="message-invite-info">
                 <span className={Style.info}>
                     &quot;{invite.inviterName}&quot; 邀请你加入群组「
                     {invite.groupName}」
                 </span>
             </div>
-            <p className={Style.join}>加入</p>
+            <p className={Style.join} data-fiora="message-invite-button">加入</p>
         </div>
     );
 }
